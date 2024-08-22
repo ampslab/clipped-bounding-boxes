@@ -1,0 +1,16 @@
+proj
+mbb
+marea
+dither
+recs
+cpeach
+rectpar
+fdpd
+vidi
+randsegs
+gdNN
+doub2asc
+asc2doub
+cmpsegs
+*.64.a
+*.64.o

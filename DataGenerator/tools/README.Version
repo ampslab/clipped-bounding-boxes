@@ -1,0 +1,26 @@
+Version information for the tools
+=================================
+
+Current:
+----------------------------------------------------------------------------
+Version: 1.1
+Date 04.06.15
+NEW:
+  rectpar: RR*tree, depending on the memory needs, works in main memory
+           or using the built-in LRU-buffer now.
+  gdNN: Adaption to the memory needs improved.
+  programs importing R-tree: RSTree7.3 used.
+  new program: vidiTxt (see README).
+----------------------------------------------------------------------------
+Version: 1.0
+Date 25.04.13
+FIXED BUGS:
+  -
+NEW:
+  program "cmpsegs"
+----------------------------------------------------------------------------
+Start Version: 0.0
+----------------------------------------------------------------------------
+There was no README.Version for Version 0.0
+
+

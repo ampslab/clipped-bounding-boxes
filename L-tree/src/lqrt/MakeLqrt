@@ -1,0 +1,313 @@
+#  Makefile of RST/lqrt
+#  -------------------  #######################################################
+#  OPTION -I../lqrt is of immense IMPORTANCE. Exchanging it with another,      #
+#  will build a version jumble here!                                          #
+###############################################################################
+
+ifeq ($(OS),Windows_NT)
+  lqrt = lqrt.exe
+else
+  lqrt = lqrt
+endif
+
+##### pointerSize #####
+# demand m=<bitSize> argument:
+# m = UNDEFINED
+# set default for bitSize
+m = 64
+##### compiler options: #####
+# ### sun: ###
+#CC = cc
+# ### no_inline ###
+#NoInline =
+# ### Cflags ###
+# ##optimized:
+# # WARN:
+# # Cflags = -fast -m$(m) -v
+# # WARN as above, but DO NOT WARN ABOUT VOID PTR IN ARITHMETIC:
+#Cflags = -fast -m$(m) -v -erroff=E_PTR_TO_VOID_IN_ARITHMETIC
+# ##debugging: !! DISCARD strip !!
+# # Cflags = -m$(m) -v -g
+# ##profiling: !! DISCARD strip !!
+# # Cflags = -fast -m$(m) -v -erroff=E_PTR_TO_VOID_IN_ARITHMETIC -xpg
+### gnu: ###
+CC = gcc
+### no_inline ###
+NoInline = -fno-inline
+### Cflags ###
+##optimized:
+# WARN:
+# Cflags = -O3 -m$(m) -Wall -Winline -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Werror-implicit-function-declaration
+# WARN as above, but DO NOT MAKE PROPOSALS:
+# Cflags = -O3 -m$(m) -Wall -Winline -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Werror-implicit-function-declaration -Wno-parentheses
+# WARN as above, but IGNORE UNUSED VARIABLES:
+# Cflags = -O3 -m$(m) -Wall -Winline -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Werror-implicit-function-declaration -Wno-parentheses -Wno-unused-variable
+# WARN as above, but IGNORE SET BUT UNUSED:
+# Cflags = -O3 -m$(m) -Wall -Winline -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Werror-implicit-function-declaration -Wno-parentheses -Wno-unused-variable -Wno-unused-but-set-variable
+# WARN as above, but IGNORE UNINITIALIZED:
+Cflags = -O3 -m$(m) -Wall -DNDEBUG -Winline -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wno-implicit-function-declaration -Wno-parentheses -Wno-unused-variable -Wno-unused-but-set-variable -Wno-uninitialized -Wno-unused-result
+##debugging: !! DISCARD strip !!
+# Cflags = -m$(m) -Wall -g -Wno-unused-but-set-variable
+##profiling: !! DISCARD strip !!
+# Cflags = -O3 -m$(m) -Wall -Winline -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Werror-implicit-function-declaration -Wno-parentheses -Wno-unused-variable -Wno-unused-but-set-variable -Wno-uninitialized -pg
+
+##### compile, link: #####
+comp = $(CC) $(Cflags) -c -o
+compNOinline = $(CC) $(Cflags) $(NoInline) -c -o
+link = $(CC) $(Cflags) -o
+
+## necessary command line parameters:
+#
+# MAKEFLAGS in environment exported to any command invoked in a makefile.
+# MAKEFLAGS re-assigned by makefile then re-assigned by command-line.
+# NOTE that trailing spaces are significant in variables
+# MAKE = "make" by default, but inherits "-n"
+
+#----------------------------------------------------------------------------
+RSTos = RSTChooseSub.$(m).o RSTDistHeap.$(m).o RSTFilePageIO.$(m).o \
+        RSTInstDel.$(m).o RSTInterUtil.$(m).o RSTSupport.$(m).o \
+        RSTJoin.$(m).o RSTLRUPageIO.$(m).o RSTPageInOut.$(m).o \
+        RSTQuery.$(m).o RSTRAMPageIO.$(m).o RSTUtil.$(m).o \
+        LRSTUtil.$(m).o Skyline.$(m).o LQRTree.$(m).o QRTtBin.$(m).o
+#----------------------------------------------------------------------------
+
+libraries = libLQRT.$(m).a
+programs = $(lqrt)
+
+# RANLIB = ranlib $(libraries)       # Berkely
+  RANLIB = @ echo 'skipping ranlib'  # SVR4
+
+
+all: $(libraries) $(programs)
+clean:
+	rm -f *.$(m).o
+	cd ../util&& $(MAKE) m=$(m) clean
+recomp:
+	rm -f *.$(m).o *.$(m).a $(lqrt)
+	cd ../util&& $(MAKE) m=$(m) recomp
+
+#
+# Libraries
+#
+libLQRT.$(m).a: $(RSTos)
+	ar rcv libLQRT.$(m).a $(RSTos)
+	$(RANLIB)
+
+../util/libUTIL.$(m).a: FORCE
+	cd ../util&& $(MAKE) m=$(m)
+
+FORCE:
+
+#
+# Main Program
+#
+$(lqrt): QRTtBin.$(m).o \
+          libLQRT.$(m).a \
+          ../util/libUTIL.$(m).a
+	$(link) $(lqrt) QRTtBin.$(m).o -L. -lLQRT.$(m) -L../util -lUTIL.$(m) -lm
+
+#----------------------------------------------------------------------------
+QRTtBin.$(m).o: QRTtBin.c \
+             RSTOtherFuncs.h \
+             ../rtcom/RSTDistQueryFuncs.h \
+             ../util/RSTFileAccess.h \
+             ../util/RSTMemAlloc.h
+	$(comp) QRTtBin.$(m).o QRTtBin.c -I../lqrt -I../rtcom -I../util
+#----------------------------------------------------------------------------
+
+#
+# compile the modules.
+#
+RSTChooseSub.$(m).o: RSTChooseSub.c \
+                     ../rtcom/RSTChooseSub.h \
+                     ../rtcom/RSTUtil.h \
+                     ../util/RSTMemAlloc.h
+	$(comp) RSTChooseSub.$(m).o RSTChooseSub.c -I../lqrt -I../rtcom -I../util
+
+RSTDistHeap.$(m).o: ../rtcom/RSTDistHeap.c \
+                    ../rtcom/RSTDistHeap.h \
+                    ../util/RSTMemAlloc.h
+	$(comp) RSTDistHeap.$(m).o ../rtcom/RSTDistHeap.c -I../lqrt -I../rtcom -I../util
+
+RSTFilePageIO.$(m).o: ../rtcom/RSTFilePageIO.c \
+                      ../rtcom/RSTFilePageIO.h \
+                      ../util/RSTFileAccess.h
+	$(comp) RSTFilePageIO.$(m).o ../rtcom/RSTFilePageIO.c -I../lqrt -I../rtcom -I../util
+
+RSTInstDel.$(m).o: RSTInstDel.c \
+                   RSTInterUtil.h \
+                   ../rtcom/RSTInstDel.h \
+                   ../rtcom/RSTUtil.h \
+                   ../rtcom/RSTPageInOut.h \
+                   ../rtcom/RSTLRUPageIO.h \
+                   ../util/RSTMemAlloc.h
+	$(comp) RSTInstDel.$(m).o RSTInstDel.c -I../lqrt -I../rtcom -I../util
+
+RSTInterUtil.$(m).o: RSTInterUtil.h \
+                     ../rtcom/RSTInterUtil.c \
+                     ../rtcom/RSTUtil.h \
+                     ../rtcom/RSTPageInOut.h \
+                     ../rtcom/RSTFilePageIO.h \
+                     ../rtcom/RSTSupport.h \
+                     ../util/RSTErrors.h \
+                     ../util/RSTFileAccess.h \
+                     ../util/RSTMemAlloc.h
+	$(comp) RSTInterUtil.$(m).o ../rtcom/RSTInterUtil.c -I../lqrt -I../rtcom -I../util
+
+RSTSupport.$(m).o: RSTSupport.c \
+                   ../rtcom/RSTSupport.h \
+                   ../rtcom/RSTUtil.h \
+                   ../util/RSTMemAlloc.h \
+                   ../util/RSTErrors.h
+	$(comp) RSTSupport.$(m).o RSTSupport.c -I../lqrt -I../rtcom -I../util
+
+RSTJoin.$(m).o: ../rtcom/RSTJoin.c \
+                ../rtcom/RSTJoin.h \
+                ../rtcom/RSTUtil.h \
+                ../rtcom/RSTPageInOut.h \
+                ../util/RSTMemAlloc.h
+	$(comp) RSTJoin.$(m).o ../rtcom/RSTJoin.c -I../lqrt -I../rtcom -I../util
+
+RSTLRUPageIO.$(m).o: ../rtcom/RSTLRUPageIO.c \
+                     ../rtcom/RSTLRUPageIO.h \
+                     ../util/RSTLRUBuf.h \
+                     ../util/RSTErrors.h
+	$(comp) RSTLRUPageIO.$(m).o ../rtcom/RSTLRUPageIO.c -I../lqrt -I../rtcom -I../util
+
+RSTPageInOut.$(m).o: ../rtcom/RSTPageInOut.c \
+                     ../rtcom/RSTPageInOut.h \
+                     ../rtcom/RSTQuery.h \
+                     ../rtcom/RSTUtil.h \
+                     ../rtcom/RSTLRUPageIO.h \
+                     ../rtcom/RSTRAMPageIO.h \
+                     ../rtcom/RSTFilePageIO.h \
+                     ../util/RSTFileAccess.h \
+                     ../util/RSTMemAlloc.h
+	$(comp) RSTPageInOut.$(m).o ../rtcom/RSTPageInOut.c -I../lqrt -I../rtcom -I../util
+
+RSTQuery.$(m).o: ../rtcom/RSTQuery.c \
+                 ../rtcom/RSTQuery.h \
+                 ../rtcom/RSTUtil.h \
+                 ../rtcom/RSTPageInOut.h \
+                 ../util/RSTFileAccess.h \
+                 ../util/RSTMemAlloc.h
+	$(comp) RSTQuery.$(m).o ../rtcom/RSTQuery.c -I../lqrt -I../rtcom -I../util
+
+RSTRAMPageIO.$(m).o: ../rtcom/RSTRAMPageIO.c \
+                     ../rtcom/RSTRAMPageIO.h
+	$(comp) RSTRAMPageIO.$(m).o ../rtcom/RSTRAMPageIO.c -I../lqrt -I../rtcom -I../util
+
+RSTUtil.$(m).o: ../rtcom/RSTUtil.c \
+                ../rtcom/RSTUtil.h \
+                ../rtcom/RSTQuery.h \
+                ../util/RSTMemAlloc.h
+	$(comp) RSTUtil.$(m).o ../rtcom/RSTUtil.c -I../lqrt -I../rtcom -I../util
+
+LRSTUtil.$(m).o: ../rtcom/LRSTUtil.c \
+                ../rtcom/LRSTUtil.h
+	$(comp) LRSTUtil.$(m).o ../rtcom/LRSTUtil.c -I../lrrst -I../rtcom -I../util
+
+Skyline.$(m).o: ../rtcom/Skyline.c \
+                ../rtcom/Skyline.h
+	$(comp) Skyline.$(m).o ../rtcom/Skyline.c -I../lrrst -I../rtcom -I../util
+
+LQRTree.$(m).o: LQRTree.c \
+               RSTInterUtil.h \
+               RSTOtherFuncs.h \
+               ../rtcom/RSTDistQueryFuncs.h \
+               ../rtcom/RSTDistQueryBase.h \
+               ../rtcom/RSTPageInOut.h \
+               ../rtcom/RSTInstDel.h \
+               ../rtcom/RSTQuery.h \
+               ../rtcom/RSTJoin.h \
+               ../rtcom/RSTDistHeap.h \
+               ../rtcom/RSTUtil.h \
+               ../rtcom/LRSTUtil.h \
+               ../rtcom/Skyline.h \
+               ../rtcom/RSTSupport.h \
+               ../util/RSTFileAccess.h \
+               ../util/RSTMemAlloc.h \
+               ../util/RSTLRUBuf.h
+	$(comp) LQRTree.$(m).o LQRTree.c -I../lqrt -I../rtcom -I../util
+
+
+#
+# interface dependencies
+#
+
+RSTBase.h: RSTTypes.h \
+           ../util/RSTLRUBuf.h
+	touch RSTBase.h
+
+../rtcom/RSTDistHeap.h: RSTBase.h
+	touch ../rtcom/RSTDistHeap.h
+
+../rtcom/RSTDistQueryBase.h: RSTBase.h \
+                             RSTTypes.h \
+                             ../rtcom/RSTQueryFuncType.h \
+                             ../rtcom/RSTDistQueryTypes.h
+	touch ../rtcom/RSTDistQueryBase.h
+
+../rtcom/RSTDistQueryFuncs.h: RSTTypes.h \
+                              ../rtcom/RSTQueryFuncType.h \
+                              ../rtcom/RSTDistQueryTypes.h
+	touch ../rtcom/RSTDistQueryFuncs.h
+
+../rtcom/RSTDistQueryTypes.h: RSTTypes.h
+	touch ../rtcom/RSTDistQueryTypes.h
+
+../rtcom/RSTFilePageIO.h: RSTBase.h
+	touch ../rtcom/RSTFilePageIO.h
+
+../rtcom/RSTInstDel.h: RSTBase.h
+	touch ../rtcom/RSTInstDel.h
+
+RSTInterUtil.h: RSTBase.h \
+                RSTOtherFuncs.h \
+                ../rtcom/RSTDistQueryFuncs.h
+	touch RSTInterUtil.h
+
+../rtcom/RSTSupport.h: RSTBase.h
+	touch ../rtcom/RSTSupport.h
+
+../rtcom/RSTJoin.h: RSTBase.h \
+                    RSTOtherFuncs.h \
+                    ../rtcom/RSTDistQueryFuncs.h
+	touch ../rtcom/RSTJoin.h
+
+../rtcom/RSTLRUPageIO.h: RSTBase.h
+	touch ../rtcom/RSTLRUPageIO.h
+
+RSTOtherFuncs.h: RSTTypes.h \
+                 ../rtcom/RSTQueryFuncType.h \
+                 ../util/RSTLRUBuf.h
+	touch RSTOtherFuncs.h
+
+../rtcom/RSTPageInOut.h: RSTBase.h
+	touch ../rtcom/RSTPageInOut.h
+
+../rtcom/RSTQuery.h: RSTOtherFuncs.h \
+                     ../rtcom/RSTDistQueryFuncs.h \
+                     ../rtcom/RSTDistQueryBase.h
+	touch ../rtcom/RSTQuery.h
+
+../rtcom/RSTQueryFuncType.h: RSTTypes.h
+	touch ../rtcom/RSTQueryFuncType.h
+
+../rtcom/RSTRAMPageIO.h: RSTBase.h
+	touch ../rtcom/RSTRAMPageIO.h
+
+RSTTypes.h: ../util/RSTStdTypes.h
+	touch RSTTypes.h
+
+../rtcom/RSTUtil.h: ../rtcom/RSTDistQueryBase.h \
+                    ../util/RSTErrors.h
+	touch ../rtcom/RSTUtil.h
+
+#------------------------------------ C-tree specific extra: -----
+../rtcom/LRSTUtil.h: ../rtcom/RSTDistQueryBase.h \
+                    ../util/RSTErrors.h
+	touch ../rtcom/LRSTUtil.h
+../rtcom/Skyline.h: ../rtcom/LRSTUtil.h
+	touch ../rtcom/Skyline.h
+

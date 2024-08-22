@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# for loop should contain the dim's for all dim dependend programs
+for i in 2 3 5 9 16 22 26; do
+  echo "REMOVING: programs, libraries, objects-files for dim=$i and dim=NONE"
+  make m=64 dim=$i recomp
+  gmake m=64 dim=$i recomp
+  make m=32 dim=$i recomp
+  gmake m=32 dim=$i recomp
+done
+

@@ -1,0 +1,83 @@
+# Make_abs: Makefile for the artificial distribution abs
+# DO NOT call directly, see createall
+
+#
+# NOTE that these (and possible flags (e.g. -n) are retained in $(MAKEFLAGS).
+# The parameters of MAKEFLAGS are AUTOMATICALLY exported to any command or
+# shell invoked in a makefile. Thereby assigned parameters may be re-assigned
+# in the command-line of the invokation and in the makefile itself:
+# --> MAKEFLAGS re-assigned by makefile re-assigned by command-line!
+
+all: $(INST)/$(dist)$(dim) \
+     $(QP)/$(dist)$(dim).$(r1d)th $(QP)/$(dist)$(dim).$(r2d)th $(QP)/$(dist)$(dim).$(r3d)th \
+     $(QR0)/$(dist)$(dim) \
+     $(QR1)/$(dist)$(dim) \
+     $(QR2)/$(dist)$(dim) \
+     $(QR3)/$(dist)$(dim)
+
+#####
+$(INST)/$(dist)$(dim): $(INST)/$(INST) \
+                       CD$(dist)$(dim)
+	CD$(dist)$(dim) -d $(INST)/$(dist)$(dim)
+$(QP)/$(dist)$(dim).$(r1d)th: $(QP)/uni$(dim).$(r1d)th
+	ln -s uni$(dim).$(r1d)th $(QP)/$(dist)$(dim).$(r1d)th
+$(QP)/$(dist)$(dim).$(r2d)th: $(QP)/uni$(dim).$(r2d)th
+	ln -s uni$(dim).$(r2d)th $(QP)/$(dist)$(dim).$(r2d)th
+$(QP)/$(dist)$(dim).$(r3d)th: $(QP)/uni$(dim).$(r3d)th
+	ln -s uni$(dim).$(r3d)th $(QP)/$(dist)$(dim).$(r3d)th
+$(QR0)/$(dist)$(dim): $(QR0)/$(QR0) \
+                      $(INST)/$(dist)$(dim)
+	cpeach $(r0d) $(rsize) $(INST)/$(dist)$(dim) $(QR0)/$(dist)$(dim).raw
+	marea $(dim) $(QR0)/$(dist)$(dim).raw 0 $(QR0)/$(dist)$(dim)
+	rm $(QR0)/$(dist)$(dim).raw
+$(QR1)/$(dist)$(dim): $(QR1)/$(QR1) \
+                      $(QP)/$(dist)$(dim).$(r1d)th \
+                      $(INST)/$(dist)$(dim) \
+                      MDsuc$(dim)
+	MDsuc$(dim) $(QP)/$(dist)$(dim).$(r1d)th $(r1) $(INST)/$(dist)$(dim) $(QR1)/$(dist)$(dim)
+$(QR2)/$(dist)$(dim): $(QR2)/$(QR2) \
+                      $(QP)/$(dist)$(dim).$(r2d)th \
+                      $(INST)/$(dist)$(dim) \
+                      MDsuc$(dim)
+	MDsuc$(dim) $(QP)/$(dist)$(dim).$(r2d)th $(r2) $(INST)/$(dist)$(dim) $(QR2)/$(dist)$(dim)
+$(QR3)/$(dist)$(dim): $(QR3)/$(QR3) \
+                      $(QP)/$(dist)$(dim).$(r3d)th \
+                      $(INST)/$(dist)$(dim) \
+                      MDsuc$(dim)
+	MDsuc$(dim) $(QP)/$(dist)$(dim).$(r3d)th $(r3) $(INST)/$(dist)$(dim) $(QR3)/$(dist)$(dim)
+CD$(dist)$(dim):
+	$(MAKE) CD$(dist)$(dim)
+	grep Param\. CD$(dist).c
+#####
+$(QP)/uni$(dim).$(r1d)th:
+	$(MAKE) -f MakeArtiS dist=uni $(QP)/uni$(dim).$(r1d)th
+$(QP)/uni$(dim).$(r2d)th:
+	$(MAKE) -f MakeArtiS dist=uni $(QP)/uni$(dim).$(r2d)th
+$(QP)/uni$(dim).$(r3d)th:
+	$(MAKE) -f MakeArtiS dist=uni $(QP)/uni$(dim).$(r3d)th
+#######
+MDsuc$(dim):
+	$(MAKE) MDsuc$(dim)
+	grep Param\. MDsuc.c
+MDmpr$(dim):
+	$(MAKE) MDmpr$(dim)
+	grep Param\. MDmpr.c
+#######
+$(INST)/$(INST):
+	mkdir $(INST)
+	touch $(INST)/$(INST)
+$(QP)/$(QP):
+	mkdir $(QP)
+	touch $(QP)/$(QP)
+$(QR0)/$(QR0):
+	mkdir $(QR0)
+	touch $(QR0)/$(QR0)
+$(QR1)/$(QR1):
+	mkdir $(QR1)
+	touch $(QR1)/$(QR1)
+$(QR2)/$(QR2):
+	mkdir $(QR2)
+	touch $(QR2)/$(QR2)
+$(QR3)/$(QR3):
+	mkdir $(QR3)
+	touch $(QR3)/$(QR3)

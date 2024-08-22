@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# mv ???[1-9] ???0[1-9]
+# but skip links
+
+for i in [_-z][_-z][_-z][1-9]; do
+  if [ ! -h $i ]; then
+    mv $i `echo $i | sed 's/\(...\)\([1-9]\)/\10\2/'`
+  fi
+done

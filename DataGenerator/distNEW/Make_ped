@@ -1,0 +1,71 @@
+# Make_ped: Makefile for the artificial distribution ped
+# DO NOT call directly, see createall
+
+#
+# NOTE that these (and possible flags (e.g. -n) are retained in $(MAKEFLAGS).
+# The parameters of MAKEFLAGS are AUTOMATICALLY exported to any command or
+# shell invoked in a makefile. Thereby assigned parameters may be re-assigned
+# in the command-line of the invokation and in the makefile itself:
+# --> MAKEFLAGS re-assigned by makefile re-assigned by command-line!
+
+all: $(INST)/$(dist)$(dim) \
+     $(QR0)/$(dist)$(dim) \
+     $(QR1)/$(dist)$(dim) \
+     $(QR2)/$(dist)$(dim) \
+     $(QR3)/$(dist)$(dim)
+
+#####
+$(INST)/$(dist)$(dim): $(INST)/$(INST) \
+                       CD$(dist)$(dim)
+	CD$(dist)$(dim) -d $(INST)/$(dist)$(dim).as_is
+	randsegs $(rsize) $(INST)/$(dist)$(dim).as_is $(INST)/$(dist)$(dim)
+	rm $(INST)/$(dist)$(dim).as_is
+$(QR0)/$(dist)$(dim): $(QR0)/$(QR0) \
+                      CDuni$(dim)
+	CDuni$(dim) -qa1 $(QR0)/$(dist)$(dim)
+	# unshortened!
+$(QR1)/$(dist)$(dim): $(QR1)/$(QR1) \
+                      CDuni$(dim)
+	CDuni$(dim) -qa10 $(QR1)/$(dist)$(dim)
+	# unshortened!
+$(QR2)/$(dist)$(dim): $(QR2)/$(QR2) \
+                      CDuni$(dim)
+	CDuni$(dim) -qa100 $(QR2)/$(dist)$(dim)
+	# unshortened!
+$(QR3)/$(dist)$(dim): $(QR3)/$(QR3) \
+                      CDuni$(dim)
+	CDuni$(dim) -qa1000 $(QR3)/$(dist)$(dim)
+	# unshortened!
+CD$(dist)$(dim):
+	$(MAKE) CD$(dist)$(dim)
+	grep Param\. CD$(dist).c
+#####
+CDuni$(dim):
+	$(MAKE) CDuni$(dim)
+	grep Param\. CDuni.c
+#######
+MDsuc$(dim):
+	$(MAKE) MDsuc$(dim)
+	grep Param\. MDsuc.c
+MDmpr$(dim):
+	$(MAKE) MDmpr$(dim)
+	grep Param\. MDmpr.c
+#######
+$(INST)/$(INST):
+	mkdir $(INST)
+	touch $(INST)/$(INST)
+$(QP)/$(QP):
+	mkdir $(QP)
+	touch $(QP)/$(QP)
+$(QR0)/$(QR0):
+	mkdir $(QR0)
+	touch $(QR0)/$(QR0)
+$(QR1)/$(QR1):
+	mkdir $(QR1)
+	touch $(QR1)/$(QR1)
+$(QR2)/$(QR2):
+	mkdir $(QR2)
+	touch $(QR2)/$(QR2)
+$(QR3)/$(QR3):
+	mkdir $(QR3)
+	touch $(QR3)/$(QR3)

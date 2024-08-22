@@ -1,0 +1,86 @@
+# MakeReal: Makefile for the real distributions
+# DO NOT call directly, see createall
+######################################################################
+# NOTE that this Makefile depends on the fact that there is exactly  #
+# one distribution per dimensionality. Hence parameter $(dim)        #
+# controls which distribution is made!                               #
+######################################################################
+#
+# NOTE that these (and possible flags (e.g. -n) are retained in $(MAKEFLAGS).
+# The parameters of MAKEFLAGS are AUTOMATICALLY exported to any command or
+# shell invoked in a makefile. Thereby assigned parameters may be re-assigned
+# in the command-line of the invokation and in the makefile itself:
+# --> MAKEFLAGS re-assigned by makefile re-assigned by command-line!
+
+## directory of source distributions:
+srcDir = RealDistOrig
+
+all: $(INST)/rea$(dim) \
+     $(QP)/rea$(dim).$(r1d)th $(QP)/rea$(dim).$(r2d)th $(QP)/rea$(dim).$(r3d)th \
+     $(QR0)/rea$(dim) \
+     $(QR1)/rea$(dim) \
+     $(QR2)/rea$(dim) \
+     $(QR3)/rea$(dim)
+
+#####
+$(INST)/rea$(dim): $(INST)/$(INST) \
+                   $(srcDir)/rea$(dim)
+##	greater number of entries:
+#	$(convp)$(gdA) $(dim) $(srcDir)/rea$(dim) $(fac) $(scl) -$(gdE) -$(gdP)
+#	mv $(srcDir)/rea$(dim).$(gdA)$(gdE)$(gdP) $(INST)/rea$(dim)
+##	original distributions:
+	mv $(srcDir)/rea$(dim) $(INST)/rea$(dim)
+$(QP)/rea$(dim): $(QP)/$(QP) \
+                 $(INST)/rea$(dim)
+	marea $(dim) $(INST)/rea$(dim) 0 $(QP)/rea$(dim).a0
+	dither $(dim) $(QP)/rea$(dim).a0 1 $(QP)/rea$(dim)
+	rm $(QP)/rea$(dim).a0
+$(QP)/rea$(dim).$(r1d)th: $(QP)/rea$(dim)
+	cpeach $(r1d) $(rsize) $(QP)/rea$(dim) $(QP)/rea$(dim).$(r1d)th
+$(QP)/rea$(dim).$(r2d)th: $(QP)/rea$(dim)
+	cpeach $(r2d) $(rsize) $(QP)/rea$(dim) $(QP)/rea$(dim).$(r2d)th
+$(QP)/rea$(dim).$(r3d)th: $(QP)/rea$(dim)
+	cpeach $(r3d) $(rsize) $(QP)/rea$(dim) $(QP)/rea$(dim).$(r3d)th
+$(QR0)/rea$(dim): $(QR0)/$(QR0) \
+                  $(INST)/rea$(dim)
+	cpeach $(r0d) $(rsize) $(INST)/rea$(dim) $(QR0)/rea$(dim).raw
+	marea $(dim) $(QR0)/rea$(dim).raw 0 $(QR0)/rea$(dim)
+	rm $(QR0)/rea$(dim).raw
+$(QR1)/rea$(dim): $(QR1)/$(QR1) \
+                  $(QP)/rea$(dim).$(r1d)th \
+                  $(INST)/rea$(dim) \
+                  MDsuc$(dim)
+	MDsuc$(dim) $(QP)/rea$(dim).$(r1d)th $(r1) $(INST)/rea$(dim) $(QR1)/rea$(dim)
+$(QR2)/rea$(dim): $(QR2)/$(QR2) \
+                  $(QP)/rea$(dim).$(r2d)th \
+                  $(INST)/rea$(dim) \
+                  MDsuc$(dim)
+	MDsuc$(dim) $(QP)/rea$(dim).$(r2d)th $(r2) $(INST)/rea$(dim) $(QR2)/rea$(dim)
+$(QR3)/rea$(dim): $(QR3)/$(QR3) \
+                  $(QP)/rea$(dim).$(r3d)th \
+                  $(INST)/rea$(dim) \
+                  MDsuc$(dim)
+	MDsuc$(dim) $(QP)/rea$(dim).$(r3d)th $(r3) $(INST)/rea$(dim) $(QR3)/rea$(dim)
+#######
+MDsuc$(dim):
+	$(MAKE) MDsuc$(dim)
+	grep Param\. MDsuc.c
+#######
+$(INST)/$(INST):
+	mkdir $(INST)
+	touch $(INST)/$(INST)
+$(QP)/$(QP):
+	mkdir $(QP)
+	touch $(QP)/$(QP)
+$(QR0)/$(QR0):
+	mkdir $(QR0)
+	touch $(QR0)/$(QR0)
+$(QR1)/$(QR1):
+	mkdir $(QR1)
+	touch $(QR1)/$(QR1)
+$(QR2)/$(QR2):
+	mkdir $(QR2)
+	touch $(QR2)/$(QR2)
+$(QR3)/$(QR3):
+	mkdir $(QR3)
+	touch $(QR3)/$(QR3)

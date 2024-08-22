@@ -1,0 +1,110 @@
+diff CDabs.c.NEW CDabs.c.ORIG:
+122c122
+<       rcts= 100000000;              /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       rcts= 1000000;              /* <--- set Param. */
+129c129
+<       rcts= 100000000;              /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       rcts= 1000000;              /* <--- set Param. */
+-----------------------------------------------------------
+diff CDbit.c.NEW CDbit.c.ORIG:
+137c137
+<       rcts= 100000000;              /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       rcts= 1000000;              /* <--- set Param. */
+147c147
+<       rcts= 100000000;              /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       rcts= 1000000;              /* <--- set Param. */
+-----------------------------------------------------------
+diff CDdia.c.NEW CDdia.c.ORIG:
+120c120
+<       rcts= 100000000;              /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       rcts= 1000000;              /* <--- set Param. */
+127c127
+<       rcts= 100000000;              /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       rcts= 1000000;              /* <--- set Param. */
+-----------------------------------------------------------
+diff CDpar.c.NEW CDpar.c.ORIG:
+147c147
+<       maxstep= 27;                /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       maxstep= 20;                /* <--- set Param. */
+157c157
+<       maxstep= 27;                /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       maxstep= 20;                /* <--- set Param. */
+-----------------------------------------------------------
+diff CDped.c.NEW CDped.c.ORIG:
+167c167
+<       maxstep= 18;                /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       maxstep= 12;                /* <--- set Param. */
+171c171
+<       AvgPerEdge= 500;            /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       AvgPerEdge= 250;            /* <--- set Param. */
+179c179
+<       maxstep= 18;                /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       maxstep= 12;                /* <--- set Param. */
+183c183
+<       AvgPerEdge= 500;            /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       AvgPerEdge= 250;            /* <--- set Param. */
+-----------------------------------------------------------
+diff CDpha.c.NEW CDpha.c.ORIG:
+170c170
+<       maxstep= 18;                /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       maxstep= 12;                /* <--- set Param. */
+174c174
+<       AvgPerClust= 500;           /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       AvgPerClust= 250;           /* <--- set Param. */
+181c181
+<       maxstep= 18;                /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       maxstep= 12;                /* <--- set Param. */
+185c185
+<       AvgPerClust= 500;           /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       AvgPerClust= 250;           /* <--- set Param. */
+-----------------------------------------------------------
+diff CDuni.c.NEW CDuni.c.ORIG:
+125c125
+<       rcts= 100000000;              /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       rcts= 1000000;              /* <--- set Param. */
+132c132
+<       rcts= 100000000;              /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       rcts= 1000000;              /* <--- set Param. */
+139c139
+<       rcts= 100000000;              /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       rcts= 1000000;              /* <--- set Param. */
+146c146
+<       rcts= 100000000;              /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       rcts= 1000000;              /* <--- set Param. */
+153c153
+<       rcts= 100000000;              /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       rcts= 1000000;              /* <--- set Param. */
+160c160
+<       rcts= 100000000;              /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       rcts= 1000000;              /* <--- set Param. */
+167c167
+<       rcts= 100000000;              /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       rcts= 1000000;              /* <--- set Param. */
+174c174
+<       rcts= 100000000;              /* <--- set Param. NUMBER OF OBJECTS */
+---
+>       rcts= 1000000;              /* <--- set Param. */
+-----------------------------------------------------------

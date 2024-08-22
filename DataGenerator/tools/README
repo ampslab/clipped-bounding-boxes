@@ -1,0 +1,161 @@
+README in tools
+===============
+
+Compatibility:
+==============
+The programs should be compilable under all modern C based 32 and 64 bit
+operating systems on little as well as on big endian architectures (at least
+with minimal adaptions).
+Tested on the operating systems:
+Solaris, openindiana, ubuntu, FreeBSD, Windows 7 with minGW installed.
+System dependent preprocessor directives are in RSTStdTypes.h and its includes.
+Tested with the compilers:
+gcc, SolarisStudio-cc.
+Due to possibly huge files to be created, 64 bit compilation is the default.
+
+Further platforms:
+------------------
+Labels in preprocessor directives (with some exceptions, e.g. "__linux__")
+are dedicated to precisely the platforms mentioned above, but may apply to
+other platforms too. So, what applies to e.g. FreeBSD may apply to other BSDs
+too. Thus, after ensuring applicability, platform conditions may be ORed with
+labels for other platforms.
+Note: Do not search for labels, corresponding to the Sun/Oracle platform (and
+its descendants). They do not exist, because in the given context this platform
+provides the most comprehensive support.
+
+Prerequisites (date: 03/13):
+============================
+- A minimum gnu/Unix environment is required.
+  Worth mentioning: gmake, gcc.
+  Under Windows there are two options:
+    - "cygwin" can be installed, runs fine, but full installation
+      is space costy and may be slow.
+    - minGW and minGW64 can be installed (both recommended).
+- 64 bit environment is recommended (long files).
+- Xm (Motif) library and header files are needed (only for rectangle
+  visualizer "vidi").
+  Motif is standardly present under Solaris 11 and openindiana.
+  No problem to install under ubuntu: about 2 packages, important: the dev
+  part (dev version?) also containing the header files.
+  No problem to install under FreeBSD, but problems running Gnome Desktop (X11)
+  on FreeBSD 9.1 (at least) in VirtualBox 4.6 - 4.10 (inoperative mouse
+  buttons) (may already be amended).
+- gcc-4.7.3 or later is recommended. The author used 4.7.2, but a bug in (all?)
+  gcc versions 4.4 .. 4.7.2 causes "mbbf" not to be compiled.
+  Solved in 4.7.3. Known to work in 3.4.3, 4.3.6.
+  See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=56270
+- gmake (gnu make) is necessary (makefiles won't work with standard make).
+- "." has to be in PATH, preferably in the first position.
+
+NOTE concerning make:
+=====================
+On some systems (e.g. Linux and minGW) "make" actually IS "gmake". On other
+systems "make" MAY BE "gmake", depending on the PATH variable. If not, "gmake"
+has to be called instead of "make". When in the this README "make" is referred
+to, always "gmake" is meant.
+ 
+Rectangle format:
+=================
+struct {double l, h;} rectangle[NumbOfDim];
+
+Installation:
+=============
+Go to tools (not to tools/src!) and call "make".
+You will get the programs, shown in the list below, compiled for 64 bit
+pointers, i.e. for 64 bit platforms.
+
+Customized installation (customization variables):
+==================================================
+Bit size options:
+-----------------
+m=64, m=32
+	Note: While object files and libraries are labled with .32/.64
+	conforming to the pointer size, programs keep their names. Hence, due
+	to make seeing them, they have to be removed, before make is called
+	for another bit size.
+Cleaning options:
+-----------------
+clean, rmprgs, recomp
+	clean: removes all object files (.o)
+	rmprgs: removes all programs (includes clean)
+	recomp: removes all libraries (includes rmprgs, clean)
+Examples:
+---------
+make m=32
+	complete compilation is done for 32 bit platform/pointers
+make m=32 recomp
+	removes all 32 bit .o-files, 32 bit libraries, all programs
+NOTE that e.g. "make clean" just cleans 64 bit versions because 64 is the
+     default.
+
+PLEASE ONLY WORK IN "tools"
+===========================
+The "Makefile" in tools/src should not be used directly.
+It is intended to be indirectly called by the "Makefile" in tools, a link to
+the file tools/src/Maketools.
+
+Versions:
+=========
+Standard versions, i.e. what you get if you call make from tools:
+See list below.
+
+Additional versions:
+Some programs can also be built for input type float (suffix "f").
+See tools/Makefile.
+Example: "make ditherf" (called from tools!).
+vidi can also be built for (center, extension) format (suffix "CE").
+The rectangle format then is:
+struct {double c[NumbOfDim], e[NumbOfDim];} CErectangle;
+make: "make vidiCE" (called from tools!).
+vidi can also be built for textual number input format (suffix "Txt").
+But the input format has to be adapted probably.
+See function "RdTextToRect" in tools/src/vidiTxt.c.
+make: "make vidiTxt" (called from tools!).
+
+
+Program List:
+=============
+  - analysis -
+cmpsegs:   compares files segment by segment.
+fdpd:      finds duplicate values per dimension.
+mbb:       computes the minimum bounding box of all rectangles of a file.
+recs:      computes the number of equal sized records of a file.
+rectpar:   computes average shape, overlap, etc. of a rectangle distribution.
+
+  - manipulation -
+cpeach:    copies each n-th record from one file to another.
+dither:    dithers the positions of all rectangles of a file.
+marea:     modifies the areas (extensions) of all rectangles of a file.
+randsegs:  copies segments of a file in random order to another file.
+proj:      projects an nD rectangle file to a certain plane (nD --> 2D).
+gdNN:      increases the number of rectangles in a file.
+
+  - conversion and manual production -
+asc2doub:  converts numbers, stored in a file, from ASCII to binary double,
+             can copy from stdin to stdout too.
+doub2asc:  converts numbers, stored in a file, from binary double to ASCII,
+             can copy from stdin to stdout too.
+
+  - visualization -
+3d:        sh script to view a 3D rectangle file in 3 2D projections.
+vidi:      visualizes a rectangle distribution.
+
+Manuals:
+========
+Further information is provided when the programs are called without any
+option.
+
+
+Output:
+=======
+Note that nearly all output goes to stderr!
+This concerns error messages, but also confirming information, hints, running
+confirmation, and so on.
+Programs producing information, like mbb, put this core information to stdout,
+of course. This way, by using ">", you get a sane, as short as possible, i.e.
+ready to print document from these programs, while observing possible error
+output on the screen.
+For background jobs it is anyway strongly recommended, to record, additionally
+using "2>&1", because error messages, produced by the OS, go to stderr anyway.
+

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# mv the link: ???[1-9] -> ???[1-9] to the link: ???0[1-9] -> ???0[1-9]
+
+for i in [_-z][_-z][_-z][1-9]; do
+  if [ -h $i ]; then
+    dim=`echo $i | sed 's/...\([1-9]\)/0\1/'`
+    name=`echo $i | sed 's/[1-9]//'`
+    j=`readlink $i`
+    linkdim=`echo $j | sed 's/...\([1-9]\)/0\1/'`
+    linkname=`echo $j | sed 's/[1-9]//'`
+    rm $i
+    ln -s ${linkname}${linkdim} ${name}${dim}
+  fi
+done

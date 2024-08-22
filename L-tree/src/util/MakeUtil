@@ -1,0 +1,187 @@
+# Makefile of util(RST)
+
+##### pointerSize #####
+# demand m=<bitSize> argument:
+# m = UNDEFINED
+# set default for bitSize
+m = 64
+##### compiler options: #####
+# ### sun: ###
+#  CC = cc
+# ### no_inline ###
+#  NoInline =
+# ### Cflags ###
+# ##optimized:
+# # WARN:
+# # Cflags = -fast -m$(m) -v
+# # WARN as above, but DO NOT WARN ABOUT VOID PTR IN ARITHMETIC:
+# Cflags = -fast -m$(m) -v -erroff=E_PTR_TO_VOID_IN_ARITHMETIC
+# ##debugging: !! DISCARD strip !!
+# # Cflags = -m$(m) -v -g
+# ##profiling: !! DISCARD strip !!
+# # Cflags = -fast -m$(m) -v -erroff=E_PTR_TO_VOID_IN_ARITHMETIC -xpg
+### gnu: ###
+ CC = gcc
+### no_inline ###
+ NoInline = -fno-inline
+### Cflags ###
+##optimized:
+# WARN:
+# Cflags = -O3 -m$(m) -Wall -Winline -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Werror-implicit-function-declaration
+# WARN as above, but DO NOT MAKE PROPOSALS:
+# Cflags = -O3 -m$(m) -Wall -Winline -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Werror-implicit-function-declaration -Wno-parentheses
+# WARN as above, but IGNORE UNUSED VARIABLES:
+# Cflags = -O3 -m$(m) -Wall -Winline -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Werror-implicit-function-declaration -Wno-parentheses -Wno-unused-variable
+# WARN as above, but IGNORE SET BUT UNUSED:
+# Cflags = -O3 -m$(m) -Wall -Winline -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Werror-implicit-function-declaration -Wno-parentheses -Wno-unused-variable -Wno-unused-but-set-variable
+# WARN as above, but IGNORE UNINITIALIZED:
+Cflags = -O3 -m$(m) -DNDEBUG -Wall -Winline -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Werror-implicit-function-declaration -Wno-parentheses -Wno-unused-variable -Wno-unused-but-set-variable -Wno-uninitialized
+##debugging: !! DISCARD strip !!
+# Cflags = -m$(m) -Wall -g -Wno-unused-but-set-variable
+##profiling: !! DISCARD strip !!
+# Cflags = -O3 -m$(m) -Wall -Winline -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Werror-implicit-function-declaration -Wno-parentheses -Wno-unused-variable -Wno-unused-but-set-variable -Wno-uninitialized -pg
+
+##### compile, link: #####
+comp = $(CC) $(Cflags) -c -o
+compNOinline = $(CC) $(Cflags) $(NoInline) -c -o
+link = $(CC) $(Cflags) -o
+
+## necessary command line parameters:
+#
+# MAKEFLAGS in environment exported to any command invoked in a makefile.
+# MAKEFLAGS re-assigned by makefile then re-assigned by command-line.
+# NOTE that trailing spaces are significant in variables
+# MAKE = "make" by default, but inherits "-n"
+
+
+UTILos = RSTErrors.$(m).o RSTFileAccess.$(m).o RSTLRUBuf.$(m).o \
+         RSTProvMissingFuncs.$(m).o RSTMemAlloc.$(m).o \
+         RSTFPstBag.$(m).o RSTFPstSet.$(m).o \
+         RSTRpnintBag.$(m).o RSTRpnintSet.$(m).o \
+         RSTStdTypes.$(m).o drand48.$(m).o
+# 06/14: RSTRpnintBag, RSTRpnintSet not used by RSTree/hilbert
+
+PltfHelpOs = RSTStdTypes.$(m).o RSTProvMissingFuncs.$(m).o drand48.$(m).o
+
+libraries = libUTIL.$(m).a libPltfHelp.$(m).a
+
+# RANLIB = ranlib $(libraries)       # Berkely
+  RANLIB = @ echo 'skipping ranlib'  # SVR4
+
+
+all: $(libraries)
+clean:
+	rm -f *.$(m).o
+recomp:
+	rm -f *.$(m).o *.$(m).a
+
+#
+# Libraries
+#
+libUTIL.$(m).a: $(UTILos)
+	ar rcv libUTIL.$(m).a $(UTILos)
+	$(RANLIB)
+
+libPltfHelp.$(m).a: $(PltfHelpOs)
+	ar rcv libPltfHelp.$(m).a $(PltfHelpOs)
+	$(RANLIB)
+
+#
+# Main Program
+#
+
+#
+# compile the modules.
+#
+RSTErrors.$(m).o: RSTErrors.c \
+                  RSTErrors.h \
+                  RSTStdTypes.h
+	$(comp) RSTErrors.$(m).o RSTErrors.c
+
+RSTFileAccess.$(m).o: RSTFileAccess.c \
+                      RSTFileAccess.h
+	$(comp) RSTFileAccess.$(m).o RSTFileAccess.c
+
+RSTLRUBuf.$(m).o: RSTLRUBuf.c \
+                  RSTLRUBuf.h \
+                  RSTFileAccess.h \
+                  RSTErrors.h \
+                  RSTMemAlloc.h
+	$(comp) RSTLRUBuf.$(m).o RSTLRUBuf.c
+
+RSTProvMissingFuncs.$(m).o: RSTProvMissingFuncs.c \
+                            RSTProvMissingFuncs.h
+	$(comp) RSTProvMissingFuncs.$(m).o RSTProvMissingFuncs.c
+
+RSTMemAlloc.$(m).o: RSTMemAlloc.c \
+                    RSTMemAlloc.h
+	$(comp) RSTMemAlloc.$(m).o RSTMemAlloc.c
+
+RSTFPstBag.$(m).o: RSTFPstBag.c \
+                   RSTFPstBag.h \
+                   RSTMemAlloc.h \
+                   RSTErrors.h
+	$(comp) RSTFPstBag.$(m).o RSTFPstBag.c
+
+RSTFPstSet.$(m).o: RSTFPstSet.c \
+                   RSTFPstSet.h \
+                   RSTMemAlloc.h \
+                   RSTErrors.h
+	$(comp) RSTFPstSet.$(m).o RSTFPstSet.c
+
+RSTRpnintBag.$(m).o: RSTRpnintBag.c \
+                     RSTRpnintBag.h \
+                     RSTMemAlloc.h \
+                     RSTErrors.h
+	$(comp) RSTRpnintBag.$(m).o RSTRpnintBag.c
+
+RSTRpnintSet.$(m).o: RSTRpnintSet.c \
+                     RSTRpnintSet.h \
+                     RSTMemAlloc.h \
+                     RSTErrors.h
+	$(comp) RSTRpnintSet.$(m).o RSTRpnintSet.c
+
+RSTStdTypes.$(m).o: RSTStdTypes.c \
+                    RSTStdTypes.h
+	$(comp) RSTStdTypes.$(m).o RSTStdTypes.c
+
+drand48.$(m).o: drand48.c \
+                drand48.h
+	${comp} drand48.$(m).o drand48.c
+
+#
+# interface dependencies
+#
+# Not a target below, itself including nothing:
+# RSTErrors.h
+# RSTProvMissingFuncs.h
+# RSTProvMissingValues.h
+# drand48.h
+
+RSTFileAccess.h: RSTStdTypes.h
+	touch RSTFileAccess.h
+
+RSTLRUBuf.h: RSTStdTypes.h \
+             RSTFPstSet.h \
+             RSTFPstBag.h
+	touch RSTLRUBuf.h
+
+RSTMemAlloc.h: RSTStdTypes.h
+	touch RSTMemAlloc.h
+
+RSTFPstBag.h: RSTStdTypes.h
+	touch RSTFPstBag.h
+
+RSTFPstSet.h: RSTStdTypes.h
+	touch RSTFPstSet.h
+
+RSTRpnintBag.h: RSTStdTypes.h
+	touch RSTRpnintBag.h
+
+RSTRpnintSet.h: RSTStdTypes.h
+	touch RSTRpnintSet.h
+
+RSTStdTypes.h: RSTProvMissingValues.h \
+               RSTProvMissingFuncs.h
+	touch RSTStdTypes.h
+

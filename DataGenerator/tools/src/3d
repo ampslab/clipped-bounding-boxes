@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# call proj to make projection files suffixed .xy .xz .zy
+# call vidi to visualize
+
+if [ $# -ne 1 ]; then
+  echo "Usage:  `basename $0` -h | -help"
+  echo "        `basename $0` file"
+  exit 1
+fi
+
+if [ "$1" = "-h" -o "$1" = "-help" ]; then
+  echo "SYNOPSIS"
+  echo "   Usage:  `basename $0` -h | -help"
+  echo "           `basename $0` inputFile"
+  echo
+  echo "`basename $0` expects a file with rectangles of the format:"
+  echo "struct {double l, h;} rectangle[NumbOfDim]."
+  echo
+  echo "It calls proj to produce 3 files, containing projections of"
+  echo "the rectangles to each 2D plane. Precisely it produces"
+  echo "the projections xy, xz and zy (not yz)."
+  echo "The names of the output files are built up of the input"
+  echo "file name, suffixed with projection shortcuts."
+  echo
+  echo "Finally, vidi is called to visualize the projections."
+  exit 1
+fi
+
+proj 3 1 2 $1 ${1}.xy
+proj 3 1 3 $1 ${1}.xz
+proj 3 3 2 $1 ${1}.zy
+vidi ${1}.xy -m -w400 &
+vidi ${1}.xz -m -w400 &
+vidi ${1}.zy -m -w400 &
+

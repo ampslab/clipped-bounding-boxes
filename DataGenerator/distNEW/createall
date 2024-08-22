@@ -1,0 +1,458 @@
+#!/bin/sh
+
+# NOTE:
+# The value of NumbOfDim occurs in two types.
+# 1. As a simple integer constant and thus usable in the -D option to the
+#    compiler as an integer (not an octal) constant.
+# 2. As a 0-padded two-digit suffix of the names of the generated
+#    distribitions. This saves the alphanumerical order.
+# The makefiles handle and build targets with suffixes of type 1.
+# The concerning conversion from type 1 to 2 and vice versa is done before and
+# after the make call by this shell script calling mvUn0pad(-h) and
+# mv0pad(-h) (-h versions skip links).
+# BUT CAUTION:
+# This leads to problems when makefiles set links, because the target of the
+# link will be unmodified.
+# Links (including targets) are moved by mvLinksUn0pad and mvLinks0pad which
+# use the readlink command (formerly from tex). If this does not exist, it
+# must be implemented in say C using system call readlink, and be provided on
+# one of your paths. Currently:
+# LINKS to be renamed are EXPECTED in $QueriesP only!
+#
+################################
+### SET THE FOLLOWING PARAMETERS:
+
+# VARIABLE MAKE see below!!
+Insertion=Insertion
+QueriesP=QueriesP
+QueriesR0=QueriesR0
+QueriesR1=QueriesR1
+QueriesR2=QueriesR2
+QueriesR3=QueriesR3
+RealDistOrig=RealDistOrig
+################################
+# The test environment consists of rectangle distributions in 4 (5) different
+# directories:
+# $Insertion   contains point/rectangle distributions to be inserted
+# $QueriesP    contains distributions of points (points are needed as a
+#              pre-stage, they are NOT USED FOR QUERY PURPOSE)
+# $QueriesR0   contains distributions of rectangles, each of which contains
+#                 1 of the inserted points/rectangles
+# $QueriesR1   contains distributions of rectangles, each of which contains
+#                10 of the inserted points/rectangles
+# $QueriesR2   contains distributions of rectangles, each of which contains
+#               100 of the inserted points/rectangles
+# $QueriesR3   contains distributions of rectangles, each of which contains
+#              1000 of the inserted points/rectangles
+# The number of queries in a query distribution is a fixed fraction of the
+# number of rectangles in the concerning insertion distribution. The actual
+# magnitude of the fraction is determined by the following dividers "??div" as
+# follows: Each ??div-th rectangle is extracted from the insertion distribution
+# and is then subject to an appropriate after treatment.
+############################################################
+### SET THE FOLLOWING PARAMETERS:
+r0=1      # number of entries retrieved by the     1-queries
+r1=10     # number of entries retrieved by the    10-queries
+r2=100    # number of entries retrieved by the   100-queries
+r3=1000   # number of entries retrieved by the  1000-queries
+QBD=10    # Query concerning Basic Divider
+# DS-1B: with 1B objects the number of queries better be smaller:
+#QBD=1000000 # i.e., every 1M-th since I'm targeting 1B!
+############################################################
+### dependant parameters: ########
+r0div=`bc -l <<HERE
+       $QBD * sqrt($r0) + 0.5
+HERE
+`
+r1div=`bc -l <<HERE
+       $QBD * sqrt($r1) + 0.5
+HERE
+`
+r2div=`bc -l <<HERE
+       $QBD * sqrt($r2) + 0.5
+HERE
+`
+r3div=`bc -l <<HERE
+       $QBD * sqrt($r3) + 0.5
+HERE
+`
+r0d=`echo $r0div | sed 's/\..*//'`
+r1d=`echo $r1div | sed 's/\..*//'`
+r2d=`echo $r2div | sed 's/\..*//'`
+r3d=`echo $r3div | sed 's/\..*//'`
+##################################
+
+# ===== FUNCTION BUILDING ARTIFICIAL DISTRIBUTIONS: =====
+buildArtiDist () {
+echo "===== ARTIFICIAL DISTRIBUTIONS: =====" >> create.script 2>&1
+
+############################################################
+### SET THE ARTIFICIAL DISTRIBUTIONS TO BE CREATED "SIMPLY" (by MakeArtiS):
+for i in $@; do
+  for j in bit dia par uni; do # DS: ORIGINAL LINE
+#  for j in par; do # DS-1B: only parcel distribution supported
+    echo "${MAKE} -f MakeArtiS dist=$j dim=$i rsize=`expr 2 \* 8 \* $i`" >> create.script 2>&1
+    echo ====================== >> create.script 2>&1
+    ${MAKE} -f MakeArtiS dist=$j dim=$i rsize=`expr 2 \* 8 \* $i` >> create.script 2>&1
+    echo "end:  \c" >> create.script 2>&1
+    date >> create.script 2>&1
+    echo >> create.script 2>&1
+  done
+done
+# DS-1B: thus can ignore the rest distros (only parcel supported anyway)
+# return ;
+############################################################
+### SET THE ARTIFICIAL DISTRIBUTION TO BE CREATED BY Make_abs (abs):
+for i in $@; do
+  for j in abs; do
+    echo "${MAKE} -f Make_abs dist=$j dim=$i rsize=`expr 2 \* 8 \* $i`" >> create.script 2>&1
+    echo ====================== >> create.script 2>&1
+    ${MAKE} -f Make_abs dist=$j dim=$i rsize=`expr 2 \* 8 \* $i` >> create.script 2>&1
+    echo "end:  \c" >> create.script 2>&1
+    date >> create.script 2>&1
+    echo >> create.script 2>&1
+  done
+done
+############################################################
+### SET THE ARTIFICIAL DISTRIBUTION TO BE CREATED BY Make_ped (ped):
+for i in $@; do
+  for j in ped; do
+    echo "${MAKE} -f Make_ped dist=$j dim=$i rsize=`expr 2 \* 8 \* $i`" >> create.script 2>&1
+    echo ====================== >> create.script 2>&1
+    ${MAKE} -f Make_ped dist=$j dim=$i rsize=`expr 2 \* 8 \* $i` >> create.script 2>&1
+    echo "end:  \c" >> create.script 2>&1
+    date >> create.script 2>&1
+    echo >> create.script 2>&1
+  done
+done
+############################################################
+### SET THE ARTIFICIAL DISTRIBUTION TO BE CREATED BY Make_pha (pha):
+for i in $@; do
+  for j in pha; do
+    echo "${MAKE} -f Make_pha dist=$j dim=$i rsize=`expr 2 \* 8 \* $i`" >> create.script 2>&1
+    echo ====================== >> create.script 2>&1
+    ${MAKE} -f Make_pha dist=$j dim=$i rsize=`expr 2 \* 8 \* $i` >> create.script 2>&1
+    echo "end:  \c" >> create.script 2>&1
+    date >> create.script 2>&1
+    echo >> create.script 2>&1
+  done
+done
+############################################################
+}
+# ===== end of function buildArtiDist
+
+# ===== FUNCTION BUILDING REAL DISTRIBUTIONS: =====
+buildRealDist () {
+
+echo "===== REAL DISTRIBUTIONS: =====" >> create.script 2>&1
+
+if [ ! -d $RealDistOrig ]; then
+  echo "Error: Directory $RealDistOrig for original real distributions missing" >> create.script 2>&1
+  echo "STOP" >> create.script 2>&1
+  exit 2
+fi
+
+pwd >> create.script 2>&1
+cd $RealDistOrig
+../mvUn0pad >> ../create.script 2>&1
+cd ..
+pwd >> create.script 2>&1
+
+echo "===== REAL (NEW) NEUROSCIENCE DISTRIBUTIONS: =====" >> create.script 2>&1
+i=3
+for d in axo den neu; do
+  echo "${MAKE} -f MakeHBP distro=$d dim=$i rsize=`expr 2 \* 8 \* $i`" >> create.script 2>&1
+  echo ================ >> create.script 2>&1
+  ${MAKE} -f MakeHBP distro=$d dim=$i rsize=`expr 2 \* 8 \* $i` >> create.script 2>&1
+  echo "end:  \c" >> create.script 2>&1
+  date >> create.script 2>&1
+  echo >> create.script 2>&1
+done
+
+# DS: remove this 'return' to generate also original 'rea' datasets
+# return ;
+
+### SETTING THE FOLLOWING VARIABLES FOR ALL REAL DISTRIBUTION MAKES
+# should be copied to the sections below and be modified there if different
+# algorithms and options shall be used for different distributions.
+# gd programs: algorithm suffix: NN
+gdA=NN
+# gd programs: option "neighbors environment": -e | -i (without the "-"!!)
+gdE=i
+# gd programs: option "proximity definition": -M | -m (without the "-"!!)
+gdP=M
+
+############################################################
+### SET CONVERSION AND DIMENSIONS AND FACTOR:
+ConvP=gd
+dgFac=10
+scale=0.67
+for i in 2; do
+  echo "${MAKE} -f MakeReal convp=$ConvP gdA=$gdA dim=$i fac=$dgFac scl=$scale gdE=$gdE gdP=$gdP rsize=`expr 2 \* 8 \* $i`" >> create.script 2>&1
+  echo ================ >> create.script 2>&1
+  ${MAKE} -f MakeReal convp=$ConvP gdA=$gdA dim=$i fac=$dgFac scl=$scale gdE=$gdE gdP=$gdP rsize=`expr 2 \* 8 \* $i` >> create.script 2>&1
+  echo "end:  \c" >> create.script 2>&1
+  date >> create.script 2>&1
+  echo >> create.script 2>&1
+done
+############################################################
+### SET CONVERSION AND DIMENSIONS AND FACTOR:
+ConvP=gd
+dgFac=10
+scale=1.0
+for i in 3; do
+  echo "${MAKE} -f MakeReal convp=$ConvP gdA=$gdA dim=$i fac=$dgFac scl=$scale gdE=$gdE gdP=$gdP rsize=`expr 2 \* 8 \* $i`" >> create.script 2>&1
+  echo ================ >> create.script 2>&1
+  ${MAKE} -f MakeReal convp=$ConvP gdA=$gdA dim=$i fac=$dgFac scl=$scale gdE=$gdE gdP=$gdP rsize=`expr 2 \* 8 \* $i` >> create.script 2>&1
+  echo "end:  \c" >> create.script 2>&1
+  date >> create.script 2>&1
+  echo >> create.script 2>&1
+done
+
+############################################################
+### SET CONVERSION AND DIMENSIONS AND FACTOR:
+ConvP=gd
+dgFac=100
+scale=1.0
+for i in 16; do
+  echo "${MAKE} -f MakeReal convp=$ConvP gdA=$gdA dim=$i fac=$dgFac scl=$scale gdE=$gdE gdP=$gdP rsize=`expr 2 \* 8 \* $i`" >> create.script 2>&1
+  echo ================ >> create.script 2>&1
+  ${MAKE} -f MakeReal convp=$ConvP gdA=$gdA dim=$i fac=$dgFac scl=$scale gdE=$gdE gdP=$gdP rsize=`expr 2 \* 8 \* $i` >> create.script 2>&1
+  echo "end:  \c" >> create.script 2>&1
+  date >> create.script 2>&1
+  echo >> create.script 2>&1
+done
+############################################################
+### SET CONVERSION AND DIMENSIONS AND FACTOR:
+ConvP=gd
+dgFac=200
+scale=1.0
+for i in 5 22 26; do
+  echo "${MAKE} -f MakeReal convp=$ConvP gdA=$gdA dim=$i fac=$dgFac scl=$scale gdE=$gdE gdP=$gdP rsize=`expr 2 \* 8 \* $i`" >> create.script 2>&1
+  echo ================ >> create.script 2>&1
+  ${MAKE} -f MakeReal convp=$ConvP gdA=$gdA dim=$i fac=$dgFac scl=$scale gdE=$gdE gdP=$gdP rsize=`expr 2 \* 8 \* $i` >> create.script 2>&1
+  echo "end:  \c" >> create.script 2>&1
+  date >> create.script 2>&1
+  echo >> create.script 2>&1
+done
+############################################################
+### SET CONVERSION AND DIMENSIONS AND FACTOR:
+ConvP=gd
+dgFac=400
+scale=1.0
+for i in 9; do
+  echo "${MAKE} -f MakeReal convp=$ConvP gdA=$gdA dim=$i fac=$dgFac scl=$scale gdE=$gdE gdP=$gdP rsize=`expr 2 \* 8 \* $i`" >> create.script 2>&1
+  echo ================ >> create.script 2>&1
+  ${MAKE} -f MakeReal convp=$ConvP gdA=$gdA dim=$i fac=$dgFac scl=$scale gdE=$gdE gdP=$gdP rsize=`expr 2 \* 8 \* $i` >> create.script 2>&1
+  echo "end:  \c" >> create.script 2>&1
+  date >> create.script 2>&1
+  echo >> create.script 2>&1
+done
+############################################################
+}
+# ===== end of function buildRealDist
+
+# ========== MAIN ==========
+if [ $# -eq 0 ]; then
+  echo "Usage: `basename $0` [ R ] [ NumbOfDim ... ]"
+  echo ""
+  echo "- If the first argument is \"R\", `basename $0` will (also) handle"
+  echo "  REAL data files."
+  echo "- ARTIFICIAL files will be created for all numbers of dimension (NumbOfDim),"
+  echo "  given in the argument list."
+  echo "Example:"
+  echo "\"`basename $0` R 2 3 9\" will create the RR*-tree paper test environment if the"
+  echo "CD???.c sources contain the ORIG versions."
+  echo "See also README in distNEW."
+  echo "Note \"IMPORTANT NOTE\" in that README."
+  exit 1
+fi
+handleReal=0
+if [ "$1" = "R" ]; then
+  handleReal=1
+  shift
+fi
+for i in $@; do
+  if echo $i | egrep '^[0-9]+$' > /dev/null 2>&1; then
+    if [ $i -eq 0 ]; then
+      echo "Illegal argument: $i" >&2
+      exit 2
+    fi
+  else
+    echo "Illegal argument: $i (natural number required)" >&2
+    exit 2
+  fi
+done
+
+echo "NEWSTART -- $0 \c" >> create.script 2>&1
+if [ $handleReal -eq 1 ]; then
+  echo "R \c" >> create.script 2>&1
+fi
+echo "$@ -------------------- \c" >> create.script 2>&1
+date >> create.script 2>&1
+
+# readlink_path=`which readlink`
+# if [ ! -x "$readlink_path" ]; then
+#   echo "$readlink_path"
+#   exit 1
+# fi
+# ABOVE DOES NOT WORK!
+# THUS THE FOLLOWING:
+echo "------------------------------------------------------------------------"
+echo "`basename $0` necessarily needs \"readlink\"! So let's test:"
+echo "-----"
+echo "which readlink:"
+which readlink
+echo "-----"
+echo "Perhaps we are on Windows (minGW and so on)? OK, let's test:"
+echo "-----"
+echo "which readlink.exe:"
+which readlink.exe
+echo "-----"
+echo "If none of the \"which\" succeeded, please do not continue, but first"
+echo "read the \"NOTE\" at the beginning of `basename $0`!"
+echo "------------------------------------------------------------------------"
+yesNo=""
+while [ "$yesNo" != "y" -a "$yesNo" != "n" ]; do
+  echo "Should we go on? (y/n) \c"
+  read yesNo
+done
+if [ "$yesNo" = "n" ]; then
+  echo "STOP"
+  exit 2
+fi
+
+echo "------------------------------------------------------------------------"
+echo "`basename $0` necessarily needs \"gmake\" (gnu make)! Standard \"make\" will fail!"
+echo "In many systems, e.g. under Linux and minGW, \"make\" actually IS"
+echo "\"gmake\". In other systems \"make\" MAY BE \"gmake\", depending on the"
+echo "setting of the PATH variable. So let's test both:"
+echo "-----"
+echo "which gmake:"
+which gmake
+echo
+echo "which make:"
+which make
+echo "-----"
+echo "Perhaps we are on Windows (minGW and so on)? OK, let's test:"
+echo "-----"
+echo "which gmake.exe:"
+which gmake.exe
+echo
+echo "which make.exe:"
+which make.exe
+echo "-----"
+echo "If none of the \"which\" succeeded, no \"make\" can be found."
+echo "Then please stop here and first complete your installation."
+echo ""
+echo "If \"gmake\" cannot be found, but \"make\" actually IS \"gmake\","
+echo "choose \"make\". Otherwise choose \"gmake\"."
+echo "------------------------------------------------------------------------"
+whichMake=""
+while [ "$whichMake" != "make" -a "$whichMake" != "gmake" -a "$whichMake" != "stop" ]; do
+  echo "Which \"make\" should be used? (make/gmake/stop) \c"
+  read whichMake
+done
+if [ "$whichMake" != "stop" ]; then
+  echo "MAKE=$whichMake"
+  MAKE=$whichMake
+  echo "No further user prompt, process may continue in the background!"
+  echo "( Unix: Ctrl-Z, bg )"
+  echo "Scripting in \"create.script\"."
+  echo "Finally, please search \"create.script\" at least for strings like"
+  echo "\"FAILURE\", \"FAILED\", \" Error\", \" error\""
+  echo "\"not found\", \"not recog\" \"no such\"!"
+  echo "If such things cannot be found, probably all went fine."
+  echo "WORKING ..."
+  echo "WORKING --- $0 \c" >> create.script 2>&1
+  if [ $handleReal -eq 1 ]; then
+    echo "R \c" >> create.script 2>&1
+  fi
+  echo "$@ -------------------- \c" >> create.script 2>&1
+  date >> create.script 2>&1
+else
+  echo "STOP"
+  exit 2
+fi
+
+pwd >> create.script 2>&1
+if [ -d $Insertion ]; then
+  echo "cd $Insertion" >> create.script 2>&1
+  cd $Insertion
+  ../mvUn0pad >> ../create.script 2>&1
+  cd .. >> create.script 2>&1
+fi
+if [ -d $QueriesP ]; then
+  echo "cd $QueriesP" >> create.script 2>&1
+  cd $QueriesP
+  ../mvUn0pad-h >> ../create.script 2>&1
+  ../mvLinksUn0pad >> ../create.script 2>&1
+  cd .. >> create.script 2>&1
+fi
+if [ -d $QueriesR0 ]; then
+  echo "cd $QueriesR0" >> create.script 2>&1
+  cd $QueriesR0
+  ../mvUn0pad >> ../create.script 2>&1
+  cd .. >> create.script 2>&1
+fi
+if [ -d $QueriesR1 ]; then
+  echo "cd $QueriesR1" >> create.script 2>&1
+  cd $QueriesR1
+  ../mvUn0pad >> ../create.script 2>&1
+  cd .. >> create.script 2>&1
+fi
+if [ -d $QueriesR2 ]; then
+  echo "cd $QueriesR2" >> create.script 2>&1
+  cd $QueriesR2
+  ../mvUn0pad >> ../create.script 2>&1
+  cd .. >> create.script 2>&1
+fi
+if [ -d $QueriesR3 ]; then
+  echo "cd $QueriesR3" >> create.script 2>&1
+  cd $QueriesR3
+  ../mvUn0pad >> ../create.script 2>&1
+  cd .. >> create.script 2>&1
+fi
+pwd >> create.script 2>&1
+
+MAKEFLAGS="\
+r0=$r0    r1=$r1	r2=$r2     r3=$r3 \
+r0d=$r0d  r1d=$r1d	r2d=$r2d   r3d=$r3d \
+INST=$Insertion QP=$QueriesP QR0=$QueriesR0 QR1=$QueriesR1 QR2=$QueriesR2 QR3=$QueriesR3"
+echo "MAKEFLAGS = $MAKEFLAGS" >> create.script 2>&1
+export MAKEFLAGS
+
+# ===== ARTIFICIAL DISTRIBUTIONS: =====
+buildArtiDist $@
+
+if [ $handleReal -eq 1 ]; then
+  # ===== REAL DISTRIBUTIONS: =====
+  buildRealDist
+fi
+
+pwd >> create.script 2>&1
+cd $Insertion
+../mv0pad >> ../create.script 2>&1
+cd ../$QueriesP
+../mv0pad-h >> ../create.script 2>&1
+../mvLinks0pad >> ../create.script 2>&1
+cd ../$QueriesR0
+../mv0pad >> ../create.script 2>&1
+cd ../$QueriesR1
+../mv0pad >> ../create.script 2>&1
+cd ../$QueriesR2
+../mv0pad >> ../create.script 2>&1
+cd ../$QueriesR3
+../mv0pad >> ../create.script 2>&1
+cd ../$RealDistOrig
+../mv0pad >> ../create.script 2>&1
+cd ..
+pwd >> create.script 2>&1
+
+echo "FINISHED -- $0 \c" >> create.script 2>&1
+if [ $handleReal -eq 1 ]; then
+  echo "R \c" >> create.script 2>&1
+fi
+echo "$@ -------------------- \c" >> create.script 2>&1
+date >> create.script 2>&1
+echo >> create.script 2>&1

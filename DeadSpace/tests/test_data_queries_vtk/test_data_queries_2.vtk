@@ -1,0 +1,73 @@
+# vtk DataFile Version 2.0
+Farhan's VTK file writer (color support added by Darius)
+ASCII
+DATASET POLYDATA
+POINTS 24 float
+1 0.5 0
+1 7.5 0
+1 0.5 0
+1 0.5 0
+1 0.5 0
+8 0.5 0
+8 7.5 0
+8 0.5 0
+8 7.5 0
+8 7.5 0
+8 7.5 0
+1 7.5 0
+1 7.5 0
+1 7.5 0
+1 7.5 0
+8 7.5 0
+1 0.5 0
+1 7.5 0
+1 0.5 0
+8 0.5 0
+8 0.5 0
+8 7.5 0
+8 0.5 0
+8 0.5 0
+LINES 12 36
+2 0 1
+2 2 3
+2 4 5
+2 6 7
+2 8 9
+2 10 11
+2 12 13
+2 14 15
+2 16 17
+2 18 19
+2 20 21
+2 22 23
+POINT_DATA 24
+SCALARS my_scalars float
+LOOKUP_TABLE custom_table
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+1.0
+
+LOOKUP_TABLE custom_table 2
+1.0 1.0 1.0 1.0
+1 0 0 1.0

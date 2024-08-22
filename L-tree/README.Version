@@ -1,0 +1,369 @@
+Version information for the RSTree bundle
+=========================================
+
+Synopsis:
+For each version, modifications are subsumed under three different notions:
+SERIOUS CHANGES:
+The applied modifications (also) concern the external interface(s).
+The version number before the dot is incremented.
+NONSERIOUS CHANGES:
+The applied modifications do not concern the external interface(s).
+The version number behind the dot is incremented.
+BUG CORRECTIONS:
+Because the correction of bugs normally concerns internals, this leads to
+an increment of the version number behind the dot. If the interface is
+affected too, the modifications are subsumed under "serious changes" too,
+and the version number before the dot is incremented.
+
+
+Current:
+----------------------------------------------------------------------------
+Version: 9.0
+Date: 29.07.15
+SERIOUS CHANGES:
+./util/RSTErrors.h: error "displacement" discarded, replaced by new errors
+  "displacement_Locks" and "displacement_WriteFailed".
+./util/RSTLRUBuf.h: function LRUEntry(): on displacement error, does not store
+  the new entry now, and returns NULL.
+
+NONSERIOUS CHANGES:
+./util/RSTErrors.c: error messages adapted (see above).
+./util/RSTLRUBuf.c: function CutTailEntry(): emits both errors now,
+  displacement_Locks and displacement_WriteFailed.
+./rtcom/RSTLRUPageIO.c: functions LinkLRUPage() and EstablishLRUPage()
+  adapted to the new error set.
+./rtcom/RSTLRUPageIO.h: comments adapted.
+./util/RSTLRUBuf.c: function LRUEntry() modified (see above).
+./rtcom/RSTUtil.c: function PRectDist() streamlined, allocM() in function
+  PRectCntrDist() avoided now.
+all RSTSupport.c: pre-allocation for PRectCntrDist() introduced.
+all RSTBase.h: variable for pre-allocation for PRectCntrDist() introduced.
+all RSTOtherFuncs.h: comment concerning early detection of memory limitation
+  improved.
+./rtcom/RSTRAMPageIO.h: order of prototypes changed, corresponding to that in
+  RSTPageInOut.h now.
+----------------------------------------------------------------------------
+Version: 8.0
+Date: 01.07.15
+SERIOUS CHANGES:
+./util/RSTLRUBuf.h: functions discarded:
+  LRUPgRead, LRUPgWrite.
+
+NONSERIOUS CHANGES:
+./util/RSTLRUBuf.h: new functions:
+  LRUEntry, SetLRUWrFlag.
+----------------------------------------------------------------------------
+Version: 7.4
+Date 22.06.15
+BUG CORRECTIONS:
+./hrt/RSTInterUtil.h, ./qrt/RSTInterUtil.h, ./rrst/RSTInterUtil.h:
+Constant REINSERT_PERCENT set to 0 (was set to 30 as in ./rst).
+NOTE that this, though being a true bug, IS RATHER A NONSERIOUS CHANGE!
+The only impact of the faulty setting was, that RAM disk extension for the
+directory RAM disk was triggered too early.
+
+SERIOUS CHANGES:
+none.
+
+NONSERIOUS CHANGES:
+./rtcom/RSTInterUtil.c:
+  SetRAMdiscLimits() adapted to the lesser page reservation demands of the non
+  re-insertion algorithms (but, avoiding special treatment, reserves even a
+  bit more for the R*-tree now (Sorry!)).
+  MinHeight() replaced by HeightPredict().
+all RSTree.c: comment improved.
+./rrst/RSTt.c, ./hrt/HRTt.c (programs thrt, tqrt, trrst, trst):
+  exeComputePageSizes() (computing of page sizes) user guidance improved.
+----------------------------------------------------------------------------
+Version: 7.3
+Date 03.06.15
+SERIOUS CHANGES:
+none.
+
+NONSERIOUS CHANGES:
+all RSTOtherFuncs.h: thresholds LO_RAM_SIZE and HI_RAM_SIZE increased, as an
+  adaption to increasing RAM sizes on modern machines.
+./rtcom/RSTInterUtil.c: comment revised.
+./util/RSTMemAlloc.h: comment revised.
+here: comment concerning Version 7.1 and ReAllocRamDisc corrected.
+----------------------------------------------------------------------------
+Version: 7.2
+Date 09.09.14
+BUG CORRECTIONS:
+RdPage(), WrPage() failed for file sizes greater than about 4GB.
+./util/RdPage(), ./util/WrPage() corrected.
+
+SERIOUS CHANGES:
+none.
+
+NONSERIOUS CHANGES:
+./rrst/RSTt.c, ./hrt/HRTt.c: stdout and stderr are flushed now in
+  PrintIndHeight(), PrintIndHeightFounds(), PrintIndHeightMatches(), which are
+  called at each periodical feedback.
+./rrst/RSTt.c: is a link now to either RSTtBin.c or RSTtTxt.c, where
+  RSTtBin.c serves for reading input files containing binaries.
+  RSTtTxt.c serves for reading input files containing text.
+  The function RdTextToRect() has to be adapted to the individual format,
+  provided in the text files, containing the data to be handled.
+./hrt/HRTt.c: Changes of ./rrst/RSTt.c are applied analogously.
+----------------------------------------------------------------------------
+Version: 7.1
+Date 11.08.14
+SERIOUS CHANGES:
+none.
+
+NONSERIOUS CHANGES:
+all RSTOtherFuncs.h: new functions SyncRST, GetRSTSync.
+./util/RSTLRUBuf.h: new functions LRUSyncFile, LRUSuspendFile.
+  Leading to: Introduction of synchronization between different independent
+  processes accessing the same R-tree, which avoids closing and re-opening in
+  case of updates.
+Function ClearVector from ./rtcom/RSTUtil.h repeated statically, to simplify
+inlining in:
+  ./qrt/RSTInstDel.c: as ID_ClearVector,
+  ./rrst/RSTChooseSub.c: as CS_ClearVector,
+  ./rst/RSTInstDelRDM.c: as ID_ClearVector,
+  ./rst/RSTInstDelRDR.c: as ID_ClearVector.
+Function Covers from ./rtcom/RSTUtil.h repeated statically, to simplify
+inlining in:
+  all RSTChooseSub.c: as CS_Covers,
+  ./rtcom/RSTQuery.c: as Q_Covers.
+Function RectsEql from ./rtcom/RSTUtil.h repeated statically, to simplify
+inlining in:
+  ./rst/RSTInstDelRDM.c: as ID_RectsEql,
+  ./rst/RSTInstDelRDR.c: as ID_RectsEql,
+  ./rtcom/RSTQuery.c: as Q_RectsEql.
+./rtcom/RSTPageInOut.h: function PutGetExtNode renamed PutGetNode.
+./rtcom/RSTInterUtil.c: function ReAllocRamDisc revised.
+  now.
+all RSTree.c: DeallocRamDisc inserted where appropriate.
+./rtcom/RSTInterUtil.c: function InitRootAndCounting improved.
+./util/RSTLRUBuf.h: new functions LRUGetCountAvail, LRUGetCountNew.
+./rrst/RSTt.c, ./hrt/HRTt.c: new function PrintLRUStatistics.
+Modifications in comments.
+here: Comment concerning Version 6.0 clarified.
+----------------------------------------------------------------------------
+Version: 7.0
+Date 22.06.14
+BUG CORRECTIONS:
+Media reorganization failed if performed after each deletion (at least).
+./rtcom/RSTUtil.c: QSortRpnints adapted to the fact that Rpnint is unsigned.
+
+SERIOUS CHANGES:
+./util/RSTFPstBag.h:
+  Function renamed:
+  FPB_Write --> FPB_Print, and prototype changed.
+./util/RSTLRUBuf.h:
+  Function renamed:
+  WriteLRUPriority --> PrintLRUPriority, and prototype changed.
+
+NONSERIOUS CHANGES:
+./util/MakeUtil:
+  RSTRpnintBag, RSTRpnintSet included into libUTIL.64.a
+./util/RSTFPstSet.h:
+  Function renamed:
+  FPS_Write --> FPS_Print, and prototype changed.
+  FPS_WriteTree --> FPS_PrintTree.
+./util/RSTRpnintBag.h:
+  Function renamed:
+  PNB_Write --> PNB_Print, and prototype changed.
+./util/RSTRpnintSet.h:
+  Function renamed:
+  PNS_Write --> PNS_Print, and prototype changed.
+  PNS_WriteTree --> PNS_PrintTree.
+./util/RSTFileAccess.c:
+  Error messages of RdBytes, WrBytes, RdBufBytes, WrBufBytes improved.
+all RSTree.c
+  DirlevelDump: file names: length of level suffixes restricted: 2 digits,
+  zero padded, now.
+./rrst/RSTt.c, ./hrt/HRTt.c
+  If LRU buffer used, print locked buffer entries before closing the tree.
+Modifications in comments.
+----------------------------------------------------------------------------
+Version: 6.0
+Date 09.06.14
+BUG CORRECTIONS:
+An old piece of code, stuck from some test, made the implementation
+inoperable for the following case:
+- re-insertion applied (during insertion or deletion) AND
+- data page size chosen, such that the maximum capacity of a data page is one
+  single entry (data M = 1) [directory page size arbitrary].
+all RSTInstDel.c:
+  GetInstPath corrected.
+
+SERIOUS CHANGES:
+RSTOtherFuncs.h:
+  Prototype of function DirLevelDump changed.
+  Prototype of function type RectConvFunc changed
+
+NONSERIOUS CHANGES:
+all RSTInstDel.c, all RSTChooseSub.c
+  Pre-allocation of memory introduced, as far as possible.
+new module RSTSupport for performance support:
+  Memory pre-allocations, parameter pre-settings.
+all RSTBase.h
+  Types for pre-allocation and buffered read/write introduced.
+all RSTree.c:
+  Calls of functions from RSTSupport introduced, DirLevelDump revised.
+./util/RSTFileAccess.h (implementation in RSTFileAccess.c):
+  new type t_FileBuf  *t_FB, new functions CreateFileBuf, DisposeFileBuf,
+  RdBufBytes, WrBufBytes, FlushBufBytes for buffered consecutive reads/writes
+  of equal sized small entities.
+  Note: Up to 50% time saving for pre-allocation in the R-tree implementation
+  and buffered read of the rectangles from the provided rectangle file
+  altogether, building an RR*-tree in main memory.
+./rrst/RSTt.c, ./hrt/HRTt.c:
+  Buffered read/write of rectangles introduced.
+  Notes at program start revised.
+Modifications in comments.
+getheads improved.
+----------------------------------------------------------------------------
+Version: 5.2
+Date 01.02.14
+BUG CORRECTIONS:
+An alignment problem caused the following bug:
+When into an RR*-tree, built up with a 64 bit compilation, additional records
+were inserted with a 32 bit compilation (and vice versa), each first split of
+a page was performed with a bogus split center, which lead to a tree with
+degraded search performance. Only concerned RR*-tree and insertion.
+all RSTBase.h:
+  typnodeinfo modified.
+all RSTree.c:
+  SetOffsets: new check introduced for the alignment proceeding of the
+  compiler.
+
+SERIOUS CHANGES:
+none.
+
+NONSERIOUS CHANGES:
+all RSTree.c:
+  Creating/opening functions: Error handling improved.
+./rrst/RSTt.c, ./hrt/HRTt.c (programs thrt, tqrt, trrst, trst):
+  Notes at program start revised.
+  Behavior of the functions "Open", "Open buffered" and "Load" enhanced when
+  handling joins.
+  Function renamed:
+    exeComputeNodeLengths --> exeComputePageSizes.
+    exeComputePageSizes: enhanced.
+  PrintAccesses: misleading output of dataAccesses eliminated.
+  Demand of the full name for description files clarified.
+  File error information improved.
+./rtcom/RSTInterUtil.c:
+  Functions providing a second tree instance (joins): Error handling improved.
+./rtcom/RSTLRUPageIO.c:
+  LinkLRUPage, EstablishLRUPage: Error handling revised, improved.
+./rtcom/RSTUtil.c:
+  zeroizing and copying functions: index removed.
+Modifications in comments.
+getheads improved.
+----------------------------------------------------------------------------
+Version: 5.1
+Date 26.12.13
+SERIOUS CHANGES:
+none.
+
+NONSERIOUS CHANGES:
+Modifications in comments.
+Removal of obsolete run-time warnings.
+----------------------------------------------------------------------------
+Version: 5.0
+Date 05.12.13
+SERIOUS CHANGES:
+./util/RSTLRUBuf.h:
+  functions renamed:
+  LRUpgReadAdr --> LRUPgRead
+  LRUpgWriteAdr --> LRUPgWrite
+  CloseLRUBufOfFile --> LRUCloseFile
+
+NONSERIOUS CHANGES:
+Modifications in comments.
+----------------------------------------------------------------------------
+Version: 4.0
+Date 25.04.13
+SERIOUS CHANGES:
+./util/RSTErrors.h:
+  new errors, error numbers changed
+./util/RSTLRUBuf.h:
+  new functions providing simplified access to buffered pages:
+  LRUpgReadAdr, LRUpgWriteAdr
+./util/RSTStdTypes.h:
+  adaption to multiple platforms
+./util/drand48.h:
+  new; re-implementation of Unix's drand48 for platforms missing to provide it
+programs thrt, tqrt, trrst, trst:
+  new option "-v" providing additional information at start
+
+NONSERIOUS CHANGES:
+Modifications in comments and error messages.
+----------------------------------------------------------------------------
+Version: 3.0
+Date: 17.10.12
+SERIOUS CHANGES:
+./util/RSTLRUBuf.h:
+  struct LRUentry: field name changed: instead of the field "fixed", there is
+  a field "locked" now, with the same meaning.
+./util/RSTLRUBuf.h:
+  NewLRUEntry(): Entries of newly created pages are initialized with the same
+  values as entries of pages, fetched from secondary memory by HashLRUEntry(),
+  now. Exactly: they are initialized with LRUentry.locked = 0 (not = 1) now.
+./util/RSTLRUBuf.h:
+  WriteLRUPriority(): output format changed: Blanks discarded from data
+  strings. Separator, formerly ",", is " " or linefeed now.
+./util: Sets and Bags:
+  _Write functions: output format changed. Blanks discarded from data strings.
+  Separator, formerly ",", is " " or linefeed now.
+
+NONSERIOUS CHANGES:
+Modifications in comments and error messages.
+----------------------------------------------------------------------------
+Version: 2.0
+Date 17.09.12
+SERIOUS CHANGES:
+RSTDistQueryFuncs.h:NewDistQuery			parameter(s) added
+RSTOtherFuncs.h:CreateMainMemRST			parameter(s) added
+RSTOtherFuncs.h:GetRAMdiscLimits --> GetRAMdiskLimits	name changed
+RSTOtherFuncs.h:PrintRSTImplLimits			new function
+
+NONSERIOUS CHANGES:
+Modifications in comments and error messages.
+----------------------------------------------------------------------------
+Version: 1.0
+Date 15.11.2011
+SERIOUS CHANGES:
+./util:
+  Version 0.x state:
+  A type FPun was defined in RSTStdTypes.h and used in RSTLRUBuf.h.
+  Additionally sets and bags on this type and the concerning functions were
+  provided in RSTFPunSet.h and RSTFPunBag.h.
+  Version 1.0 state:
+  The type FPun has been discarded.
+  RSTFPunSet.h and RSTFPunBag.h have been discarded.
+  Instead, type FPst from RSTStdTypes.h is used in RSTLRUBuf.h now.
+  Sets and bags on this type, and the concerning functions are provided in the
+  new header files RSTFPstSet.h and RSTFPstBag.h.
+  Existing implementations have to be changed in that the fields p and f of
+  FPst have to be addressed directly now.
+  Example:
+  Rpnint  pageNumber; File file;
+  ----- OLD: -----
+  FPun fp;
+  fp.s.p= pageNumber; fp.s.f= file;
+  ----- NEW: -----
+  FPst fp;
+  fp.p= pageNumber; fp.f= file;
+
+NONSERIOUS CHANGES:
+Modifications in comments and error messages.
+----------------------------------------------------------------------------
+Version: 0.1
+Date 23.08.2010
+SERIOUS CHANGES:
+None.
+
+NONSERIOUS CHANGES:
+Modifications in comments and error messages.
+----------------------------------------------------------------------------
+Start Version: 0.0
+----------------------------------------------------------------------------
+There was no README.Version for Version 0.0
+

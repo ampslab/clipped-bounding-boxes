@@ -1,0 +1,113 @@
+# Install all tools
+
+ifeq ($(OS),Windows_NT)
+  dither = dither.exe
+  marea = marea.exe
+  mbb = mbb.exe
+  proj = proj.exe
+  cpeach = cpeach.exe
+  recs = recs.exe
+  rectpar = rectpar.exe
+  fdpd = fdpd.exe
+  vidi = vidi.exe
+  asc2doub = asc2doub.exe
+  doub2asc = doub2asc.exe
+  randsegs = randsegs.exe
+  gdNN = gdNN.exe
+  cmpsegs = cmpsegs.exe
+  
+  ditherf = ditherf.exe
+  mareaf = mareaf.exe
+  mbbf = mbbf.exe
+  projf = projf.exe
+  vidif = vidif.exe
+  vidiCE = vidiCE.exe
+  vidiTxt = vidiTxt.exe
+else
+  dither = dither
+  marea = marea
+  mbb = mbb
+  proj = proj
+  cpeach = cpeach
+  recs = recs
+  rectpar = rectpar
+  fdpd = fdpd
+  vidi = vidi
+  asc2doub = asc2doub
+  doub2asc = doub2asc
+  randsegs = randsegs
+  gdNN = gdNN
+  cmpsegs = cmpsegs
+  
+  ditherf = ditherf
+  mareaf = mareaf
+  mbbf = mbbf
+  projf = projf
+  vidif = vidif
+  vidiCE = vidiCE
+  vidiTxt = vidiTxt
+endif
+
+### DEFAULT INSTALLATION: ###
+defaultCprg = $(dither) \
+              $(marea) \
+              $(mbb) \
+              $(proj) \
+              $(cpeach) \
+              $(recs) \
+              $(rectpar) \
+              $(fdpd) \
+              $(vidi) \
+              $(asc2doub) \
+              $(doub2asc) \
+              $(randsegs) \
+              $(gdNN) \
+              $(cmpsegs)
+
+### explicitly: ###
+explicitCprg = $(ditherf) \
+               $(mareaf) \
+               $(mbbf) \
+               $(projf) \
+               $(vidif) \
+               $(vidiCE) \
+               $(vidiTxt)
+
+# directory to compile for
+# not changeable!!
+dir = ../
+
+# pointer size (platform)
+# default, changeable: make m=32
+m=64
+
+all:
+	cd src&& $(MAKE) m=$(m) dir=${dir}
+clean:
+	cd src&& $(MAKE) m=$(m) clean
+rmprgs:
+	rm -f $(defaultCprg)
+	rm -f $(explicitCprg)
+	cd src&& $(MAKE) m=$(m) clean
+recomp:
+	rm -f $(defaultCprg)
+	rm -f $(explicitCprg)
+	cd src&& $(MAKE) m=$(m) recomp
+
+$(ditherf):
+	cd src&& $(MAKE) m=$(m) ${dir}$(ditherf) dir=${dir}
+$(mareaf): FORCE
+	cd src&& $(MAKE) m=$(m) ${dir}$(mareaf) dir=${dir}
+$(mbbf): FORCE
+	cd src&& $(MAKE) m=$(m) ${dir}$(mbbf) dir=${dir}
+$(projf): FORCE
+	cd src&& $(MAKE) m=$(m) ${dir}$(projf) dir=${dir}
+$(vidif): FORCE
+	cd src&& $(MAKE) m=$(m) ${dir}$(vidif) dir=${dir}
+$(vidiCE): FORCE
+	cd src&& $(MAKE) m=$(m) ${dir}$(vidiCE) dir=${dir}
+$(vidiTxt): FORCE
+	cd src&& $(MAKE) m=$(m) ${dir}$(vidiTxt) dir=${dir}
+
+FORCE:
+

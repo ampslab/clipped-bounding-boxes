@@ -1,0 +1,71 @@
+#!/bin/sh
+
+## getheads displays labeled lines of ./*.h. If a file is a link
+## to a target in ., the is link used, but the target is rejected.
+## Remark: readlink needed
+
+rawOut () {
+  linkTargets=
+  display=
+  for i in *.h; do
+    if [ -h $i ]; then
+      linkTargets=${linkTargets}" "`readlink $i`
+    fi
+  done
+  
+  for i in *.h; do
+    isTarget=0
+    for j in $linkTargets; do
+      if [ $i = $j -o $i = ./$j ]; then
+        isTarget=1
+        break
+      fi
+    done
+    if [ $isTarget = 0 ] ; then
+      display=${display}" "$i
+    fi
+  done
+  
+  grep -s '\*:' $display | sed 's/\/\*\*:/	/'
+}
+
+echo
+echo Directory: \\c
+pwd
+echo
+echo Headerfiles \".h:\"
+echo =================
+
+rawOut | awk '
+BEGIN { x= "" }
+{
+  l= length($1)
+  if ($1 == x) {
+    printf "\t\t\t"
+    for (i= 2; i <= NF; i++) {
+      printf " %s", $i
+    }
+    printf "\n"
+  }
+  else {
+    printf "%s", $1
+    if (l < 8) {
+      printf "\t\t\t"
+    }
+    else if (l < 16) {
+      printf "\t\t"
+    }
+    else {
+      printf "\t"
+    }
+    for (i= 2; i <= NF; i++) {
+      printf " %s", $i
+    }
+    printf "\n"
+  }
+  x= $1
+}
+'
+
+echo
+

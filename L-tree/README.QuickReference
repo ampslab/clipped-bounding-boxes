@@ -1,0 +1,54 @@
+Important quick references in short
+===================================
+
+- Tested on: Solaris 11, openindiana, ubuntu, FreeBSD, Windows 7 with minGW.
+- Tested with: gcc, SolarisStudio-cc.
+- Supported pointer sizes: 64 bit (default), 32 bit.
+- Supported endianness: little and big.
+
+- R-tree variants provided:	Hilbert-R-tree in		./hrt,
+				quadratic R-tree in		./qrt,
+  				RR*-tree in			./rrst, 
+  				R*-tree in			./rst.
+
+- gnu make (gmake) is needed.
+- Making of the different R-trees: go to the concerning directory, call make.
+- Special make targets: "clean", "recomp".
+
+- Platform independend integer types: see ./util/RSTStdTypes.h; printing of
+  these types with C printf(): see strans() there.
+- The only floating point type is "Rfloat" corresponding to double.
+
+- Platform independend file access functions: see ./util/RSTFileAccess.h.
+- Platform independend memory allocation and deallocation functions: see
+  ./util/RSTMemAlloc.h.
+- LRU-buffer: see ./util/RSTLRUBuf.h.
+- Unix random generator drand48: see ./util/drand48.h.
+
+- RSTree entry type: a rectangle + an informational part of at least 4 bytes.
+- RSTree rectangle type: an array of intervals, see ./rrst/RSTTypes.h.
+- RSTree informational part type: see ./rrst/RSTTypes.h.
+- RSTree entry alignment: 8 bytes (independendly of the pointer size).
+
+- RSTree Interfaces: see ./README: "Interfaces".
+- RSTree Test programs: see ./README: "Test Program".
+  RSTree Test programs, detailed manual: see README.RSTt.c.txt.
+- RR*-tree directory: ./rrst.
+- RR*-tree test program source: ./rrst/RSTt.c.
+- RR*-tree test program: ./rrst/trrst.
+- Important parameters and limits of the RSTree implementation: call: trrst -v.
+- Hint 1, testing with trrst: trrst demands insertion- and query-files
+  containing rectangles in binary format (gap-free).
+- Hint 2, testing with trrst: Create a new directory, link insertion and query
+  files there, start trrst and proceed.
+- Hint 3, testing with trrst: You must not (never have to) type in the
+  suffix(es), the tree is labeled with.
+  
+- Limitations on certain platforms:
+  Windows: Pagewise read and write are implemented as a non atomic sequence.
+  See RdPage, WrPage in ./util/RSTFileAccess.h.
+  Windows: Only the elapsed time can be measured, but not the user- and
+  system-time. See Windows time measurement block in ./rrst/RSTt.c.
+
+- FAQs: in ./README
+

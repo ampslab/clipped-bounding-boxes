@@ -1,0 +1,32 @@
+Version information for distNEW
+===============================
+
+Current:
+----------------------------------------------------------------------------
+Version: 1.1
+Date 04.06.15
+NEW:
+  RSTree7.3 is used.
+  Main memory consumption has been extended again as an adaption to modern
+  machines, in order to shorten the run time.
+  The main memory need is roughly limited to 12GB, i.e. a computer, equipped
+  with at least 16GB main memory is needed.
+----------------------------------------------------------------------------
+Version: 1.0
+Date 25.04.13
+FIXED BUGS:
+  Immense main memory capacity was needed for the creation of query files from
+  large data files. This was caused by the MD* programs, which inadvertently
+  always worked in main memory.
+  SOLUTION:
+  MD* programs, for large files, work on secondary memory now, utilizing the
+  the Reference-LRU-Buffer from the util bundle.
+  The maximum main memory consume is limited to about 1.5G now.
+NEW:
+  -
+----------------------------------------------------------------------------
+Start Version: 0.0
+----------------------------------------------------------------------------
+There was no README.Version for Version 0.0
+
+

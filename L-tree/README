@@ -1,0 +1,471 @@
+# L-tree data structure
+
+We trid to minimally perturb the original RSTree bundle source code in order to better isolate our proposed changes.
+For each original RTree variant, there are two sub-directories corresponding to the original code and the L-tree version.
+For example, the pair `qrt` and `lqrt` correspond to the original quadratic R-tree and the CBB-enabled quadratic R-tree, respectively.
+You can diff a pair of directories to see the exact changes introduced by us.  
+  
+--------- ORIGINAL RSTree bundle README below this point --------------  
+  
+README for the RSTree bundle
+============================
+
+Overview:
+=========
+The sources provide a C frame for R-tree like structures.
+Different R-trees and corresponding test programs may be created by calling
+"make" in different sub-directories.
+NOTE that largely symbolic links and -I options in the makefiles decide which
+R-tree version is actually built.
+
+Files:
+------
+README:			(this file) contains information about the usage of
+			the RSTree bundle and its interfaces in general.
+			It also contains FAQs.
+README.Platform:	contains information about compilation and usage on
+			different platforms and with different pointer sizes.
+README.QuickReference:	contains a short list of what is provided and what is
+			assumed and required by the RSTree implementation. 
+README.RSTt.c.txt:	contains a manual for the test program and its source.
+README.Version:		contains version history.
+getheads:		is a simple shell script for viewing the headings of
+			the interfaces (headerfiles).
+
+Source-Directories:
+-------------------
+hrt:	contains the Hilbert-R-tree sources
+qrt:	contains the quadratic R-tree sources
+rrst:	contains the RR*-tree sources
+rst:	contains the R*-tree sources
+rtcom:	contains sources common to all versions
+util:	contains:
+	- basic constants and types
+	- nearly all preprocessor directives needed for platform adaption
+	- endian determination
+	- sources for stand-alone utilities used by the R-tree frame, see also
+	  README.QuickReference.
+
+
+Compatibility:
+==============
+The programs should be compilable under all modern C based 32 and 64 bit
+operating systems on little as well as on big endian architectures (at least
+with minimal adaptions).
+Tested on the operating systems:
+Solaris, openindiana, ubuntu, FreeBSD, Windows 7 with minGW installed.
+System dependent preprocessor directives are in util/RSTStdTypes.h and its
+includes.
+Tested with the compilers:
+gcc, SolarisStudio-cc.
+Due to possibly huge files to be created, 64 bit compilation is the default.
+
+Further platforms:
+------------------
+Labels in preprocessor directives (with some exceptions, e.g. "__linux__")
+are dedicated to precisely the platforms mentioned above, but may apply to
+other platforms too. So, what applies to e.g. FreeBSD may apply to other BSDs
+too. Thus, after ensuring applicability, platform conditions may be ORed with
+labels for other platforms.
+Note: Do not search for labels, corresponding to the Sun/Oracle platform (and
+its descendants). They do not exist, because in the given context this platform
+provides the most comprehensive support.
+
+Workarounds on certain platforms:
+---------------------------------
+Windows:
+- Pagewise read and write are implemented by the (non atomic) sequence:
+  GetPosF(*old), SetPosF(new), RdBytes(pagesize), SetPosF(old).
+  See RdPage, WrPage in util/RSTFileAccess.h
+
+Non resolved issues on certain platforms:
+-----------------------------------------
+Windows:
+- Only the elapsed time can be measured, but not the user- and system-time.
+  Note, that the elapsed time may substantially differ from what the possibly
+  intervened process considered really consumed.
+  See Windows time measurement block in rrst/RSTt.c
+
+
+Prerequisites (date: 11/13):
+============================
+- A minimum gnu/Unix environment is required.
+  Worth mentioning: gmake, gcc.
+  Under Windows there are two options:
+    - "cygwin" can be installed, runs fine, but full installation
+      is space costy and may be slow.
+    - minGW and minGW64 can be installed (both recommended).
+- 64 bit environment is recommended (long files).
+- gmake (gnu make) is necessary (makefiles won't work with standard make).
+- "." has to be in PATH, preferably in the first position.
+- Under Windows, standard editors do not recognize the NL-chracter (dec. 10)
+  as a line break. Hence notepad++ (or any other editor recognizing LINEFEED)
+  should be installed.
+
+
+NOTE concerning make:
+=====================
+On some systems (e.g. Linux and minGW) "make" actually IS "gmake". On other
+systems "make" MAY BE "gmake", depending on the PATH variable. If not, "gmake"
+has to be called instead of "make". When in the this README "make" is referred
+to, always "gmake" is meant.
+
+
+Rectangle format:
+=================
+struct {double l, h;} rectangle[NumbOfDim];
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
+Interfaces:
+===========
+(the pseudo directory "*t" refers to the directories: hrt, qrt, rrst, rst)
+(the pseudo directory "[q,r][r,s]*" refers to the directories: qrt, rrst, rst)
+
+			  general:
+			  --------
+*t/RSTOtherFuncs.h:		contains the prototypes of functions, needed to
+				build up, maintain and use R-trees, and is
+				RECOMMENDED TO BE VIEWED FIRST OF ALL.
+rtcom/RSTQueryFuncType.h:	contains a function type, needed by the query
+				functions.
+*t/RSTTypes.h:			containes important types, needed by programs,
+				incorporating the RSTree bundle; itself
+				includes util/RSTStdTypes.h.
+
+		     distance queries:
+		     -----------------
+rtcom/RSTDistQueryFuncs.h:	contains prototypes, needed for distance
+				queries.
+rtcom/RSTDistQueryTypes.h:	contains special types, needed for distance
+				queries.
+
+
+Test Program Sources:
+=====================
+[q,r][r,s]*/RSTt.c:	Test program source, using (nearly) the
+			complete set of functions and types of the
+			system. Provides important PERFORMANCE TESTS
+			and is an EXAMPLE for using the RSTree bundle.
+			(concerns:
+				- quadratic R-tree
+				- R*-tree
+				- RR*-tree)
+hrt/HRTt.c:		See "RSTt.c" above.
+			(concerns Hilbert-R-tree)
+
+
+Test Programs:
+==============
+hrt/thrt:	for the Hilbert-R-tree
+qrt/tqrt:	for quadratic R-tree
+rrst/trrst:	for the RR*-tree
+rst/trst:	for the R*-tree
+
+
+Header Viewer:
+==============
+type "getheads <RETURN>"
+
+
+Libraries / Compilation:
+========================
+To compile one of the different R-tree versions, go to the directory
+containing the concerning sources (see "Source-Directories"), and call make.
+The utilities may also be separately built in directory util.
+
+The default pointer size is 64 bit (m=64). But the pointer size can be
+overwritten by the make call as follows:
+make m=32
+
+The Makefiles, provided in the particular R-tree directories, compile and link
+the libraries and the test program:
+- the R-tree library and the test program are built in the particular R-tree
+  directory
+- the utilities library is built in util.
+For the integration of an R-tree into another source, see Makefiles and test
+programs.
+
+The libraries are discretely provided for 32 and 64 bit pointers and are
+suffixed with ".32.a" and ".64.a".
+The test program is built unsuffixed and has to be renamed if test programs
+for both pointer sizes shall be built,
+
+Special make targets:
+"clean":  (common meaning)
+"recomp": (next recompilation will start from scratch)
+
+
+NOTE:
+=====
+Contrary to common expectation, compilation with 32 bit and 64 bit pointers,
+both leads to the SAME (64 bit) ALIGNMENT of the entries in the pages.
+Thus trees built up with the 32 bit version may be opened and updated with the
+64 bit version and vice versa.
+ON THE OTHER HAND:
+Using the 32 bit and 64 bit version does not coercibly lead to exactly the
+same tree during build-up.
+This is due to the fact that during compilation different floating point
+algorithms may be introduced, e.g. the usage of the built in FPU or not.
+For data sets containing very similar rectangles (or points) or even
+duplicates, this may lead to a slightly different assignment of entries to
+pages, which on its part may lead to a slightly different access performance.
+For the same reason, compiling on different platforms or with different
+options may lead to the mentioned effects.
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
+FAQs:
+=====
+
+Which input format does the test program RSTt.c (trrst) demand?
+
+- RSTt.c (trrst) demands data files containing rectangles in
+  binary format, as provided in our data set, and as described/used in the
+  documents/source on the download site.
+  Remark1:
+  This allows realtime measurement without the impact of conversion routines.
+  Remark 2:
+  The RR*-tree implementation allows (and demands!) to append an informational
+  part of arbitrary but (for a special tree) fix size to each rectangle; both
+  together form the data record to be inserted. In the test program source
+  RSTt.c the informational part is simply set to a running number.
+  See also functions and types:
+  - exeInsert in RSTt.c
+  - CreateRST, CreateMainMemRST, InsertRecord in RSTOtherFuncs.h
+  - typinterval, typinfo in RSTTypes.h.
+  File handling functions are provided in RSTFileAccess.h.
+----------
+
+Which rectangle format does the RR*-tree demand?
+
+The RR*-tree demands rectangles to be passed as arrays of intervals of type
+double. See RSTTypes.h.
+Example:
+Provided the dimensionality set to 2.
+Passing the values: -1.0   1.0   2.0   3.0
+                    interval1   interval2
+passes the rectangle with the corners
+P*(x,y) = (-1.0,2.0) (1.0,2.0) (-1.0,3.0) (1.0,3.0).
+
+The key type (interval) is defined in RSTTypes.h
+Note that rectangles cannot be defined there because the number of dimensions
+is free and set during run time.
+Remember that R-trees may also store "1D rectangles", i.e. intervals.
+----------
+
+How can I insert point data?
+
+Point data has to be inserted as rectangles, i.e. with intervals of length 0.
+Example:
+Provided the dimensionality set to 2.
+Passing the values: -1.0  -1.0   2.0   2.0
+                    interval1   interval2
+passes the point
+P(x,y) = (-1.0,2.0).
+----------
+
+What kind of data does the RR*-tree store?
+
+The RR*-tree stores records of the form (rectangle,info), where info is an
+informational part of arbitrary but (for a special tree) fixed size.
+The size of info is at least 4 bytes. The type of an atomar key, two of which
+form an interval, is double. Since the alignment is 8 bytes (for both, the
+64 bit and the 32 bit version), 2 dimensions provided, the smallest size of
+a record is 2*2*8+8=40 (and not 36 as one could think).
+See also - InsertRecord in RSTOtherFuncs.h
+         - typinterval, typinfo in RSTTypes.h.
+----------
+
+How can I find out which kind of data the provided data and query files
+contain?
+
+1.
+  The demo program on the download site provides a convenient way to look up
+  the rectangles (to be modified for different dimensions, and to be
+  recompiled).
+2. (Example for data file abs02)
+  Download the data file abs02.
+  Check it with od:
+  $ od -F abs02 | head -6
+  The numbers of the output should be the same as in the comment at the end of
+  the demo program mentioned above (od: last digit rounded).
+----------
+
+Does the RR*-tree contain bulk loading algorithms?
+
+No, the implementation is dedicated to a dynamic setting, where rectangles
+have to be inserted, deleted and changed (delete, insert) over the time,
+informational parts have to be adapted, and so on. Anyway, the main goal of
+the research was to optimize query performance under a dynamic setting.
+----------
+
+Can the authors of the paper provide their test environment?
+
+No, they cannot.
+The test environment of the paper is not applicable to the present
+implementation.
+The tests for the paper were done with RR*-tree and competitors
+implementations, where the number of dimensions was compiled into the code. In
+this implementation the number of dimensions is set during run time.
+----------
+
+How can I reproduce the tests of the paper?
+
+Example: reproduce the test results for the abs02 group:
+The following contents of a directory provided:
+
+abs02
+abs02QR0
+abs02QR2
+abs02QR3
+inFile
+trrst
+
+the call
+$ trrst < inFile > outFile
+
+does the work for the abs02 group, where
+abs02    = insertion file
+abs02QR0 = query file, result size    1 object
+abs02QR2 =           "              100 objects
+abs02QR3 =           "             1000 objects,
+inFile has the following content:
+
+m
+abs02
+10000000
+200000000
+4096
+4096
+2
+4
+n
+i
+0 0
+o
+100000
+I
+r
+abs02QR0
+0 0
+o
+10000
+-
+r
+abs02QR2
+0 0
+o
+10000
+-
+r
+abs02QR3
+0 0
+o
+1000
+K
+q
+
+and outFile is produced by the call.
+
+We simulated secondary memory working in main memory, but assumed the
+complete directory of the tree to be anyway stored in main memory. Thus:
+
+For the insertions, we counted the "dataIOs/CALL" (= "dataAccesses/CALL" in
+case of secondary memory).
+$ grep dataIOs/CALL outFile
+                       dataIOs/CALL: 3.72e-01
+For abs02, see left most column in table 3 of our paper.
+
+For the queries, we counted the "dataDemands/CALL" (= "dataReads/CALL" in
+case of secondary memory).
+$ grep dataDemands/CALL outFile
+                   dataDemands/CALL: 1.00e+00
+                   dataDemands/CALL: 1.00e+00
+                   dataDemands/CALL: 4.92e+00
+                   dataDemands/CALL: 2.49e+01
+Neglect the first, it's from insertion.
+For abs02, see left most column in table 4 of our paper.
+
+The size of the inserted records is 8-aligned. Thus an information part of
+size 1..8 bytes leads to the same record size of 40 bytes.
+
+The results of outFile can be extracted with awk scripts or similar tools
+without ambiguities, at least if spaces in front are taken into account and
+entries are neglected, as shown above.
+----------
+
+What about the tree, when I use trrst and do not want to simulate in main
+memory?
+
+Unchanged, trrst puts the tree into the directory, where the rectangle files
+reside. In this example in ".". The tree files are named like the insertion
+file, but with suffixes added. Trees are created and opened without typing
+any of these suffixes.
+See also "Naming and storing conventions" in README.RSTt.c.txt
+See also CreateRST in RSTOtherFuncs.h
+
+Example: reproduce the test results for the abs02 group:
+The following contents of a directory provided:
+
+abs02
+abs02QR0
+abs02QR2
+abs02QR3
+inFile
+trrst
+
+the call
+$ trrst < inFile > outFile
+
+does the work for the abs02 group, where
+abs02    = insertion file
+abs02QR0 = query file, result size 1    object
+abs02QR2 =           "             100 objects
+abs02QR3 =           "             1000 objects,
+inFile has the following content:
+
+c
+abs02
+4096
+4096
+2
+4
+n
+i
+0 0
+o
+100000
+I
+r
+abs02QR0
+0 0
+o
+10000
+-
+r
+abs02QR2
+0 0
+o
+10000
+-
+r
+abs02QR3
+0 0
+o
+1000
+q
+
+and outFile is produced by the call.
+Thereafter the directory will contain additional files with suffix ".RSF*",
+which contain the stored tree.
+The tree has to be re-opened with the name of the data file, used to produce
+it, i.e. by omitting the suffix.
+Example: the tree consisting of files: foo.RSF* has to be opened by name
+"foo".
+This is a peculiarity of RSTt.c, i.e. trrst, but convenient.
+Using your own application for the RR*-tree implementation you are free to
+create trees with arbitrary names, of course.
+----------

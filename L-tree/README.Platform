@@ -1,0 +1,38 @@
+Platform information for the RSTree bundle
+==========================================
+
+The information here addresses the behavior of integer type sizes when
+compilation is done for different pointer sizes (32/64 bit).
+
+The sources at hand should be compilable with 32 as well as 64 bit sized
+pointers. Under Unix systems, this is not a problem at all, because there is a
+pointer compatible integer (type (unsigned) long), and the interfaces of
+functions, demanding a pointer compatible integer, are transitional (though
+explicit functions for 64 bit may co-exist).
+Under Windows both, a pointer compatible integer and concerning functions do
+not exist. Instead there is a mass of 64-bit extra functions.
+
+It can be difficult to adapt sources to 32/64 bit pointer compilation, because
+different compilers may or may not define differing constants to signal the
+pointer size to the pre-compiler.
+However, predefined constants, identifying an OS to work with either 32 or 64
+bit pointers are usually available.
+This leads to the following RESTRICTION:
+In a Windows environment, the implementation assumes that the POINTER SIZE
+OPTION, given to the compiler, be EQUAL TO THE POINTER SIZE OF THE OPERATING
+SYSTEM.
+In a Unix environment (on a 64 bit system) the pointer size may be freely
+chosen (e.g. under Solaris). However some 64 bit Unix systems require the
+installation of a library bundle, to be able to compile 32 bit programs too.
+
+Another RESTRICTION concerns compilation for different pointer sizes in
+general: Compilation with 32 bit pointers not only restricts the maximum
+addressable main memory size, but also restricts the MAXIMUM NUMBER OF BYTES
+ADDRESSABLE IN FILES, i.e. the maximum number of bytes a file may store.
+
+NOTE:
+The sources at hand work on SELF DEFINED INTEGER TYPES, based on standard
+integer types defined on the particular platforms. Circumventing these
+standards, using special options provided by popular compilers, is not
+supported by the RSTree type system.
+

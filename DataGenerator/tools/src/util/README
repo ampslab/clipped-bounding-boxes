@@ -1,0 +1,79 @@
+README for the utility bundle
+=============================
+
+The utility bundle is stand-alone.
+It is needed by the RSTree implementation.
+
+Many of the functions of this bundle are internally used by the RSTree bundle.
+In parts, these functions serve as platform independent, convenient low level
+functions, e.g. those from RSTFileAccess.h and RSTMemAlloc.h; other header
+files provide important utilities, e.g. LRU-buffer, sets, bags. Additionally,
+standard types are provided (RSTStdTypes.h), and error messages are defined
+and generated (RSTErrors.h).
+
+--------------------------------
+Interfaces:
+-----------
+
+RSTErrors.h:			enumerates possible errors and provides a
+				function to print error messages similar to
+				perror (see man perror for more information).
+				Error support: -
+
+RSTFPstBag.h:			provides arbitrary sized ordered bags of type
+				FPst, which is defined in RSTStdTypes.h.
+				Error support: parameter Done, messages.
+
+RSTFPstSet.h:			provides arbitrary sized ordered sets of type
+				FPst, which is defined in RSTStdTypes.h.
+				Error support: parameter Done, messages.
+
+RSTFileAccess.h:		provides bytewise and blockwise IO operations.
+				Error support: return value, messages
+				mirroring OS errors.
+
+RSTLRUBuf.h:			provides an arbitrary sized, reference capable
+				Least Recently Used buffer.
+				Error support: page reference, parameter
+				Done, error number, messages.
+
+RSTMemAlloc.h:			provides standard heap allocation functions
+				(wrappers for malloc() and free()).
+				Error support: return value.
+
+RSTProvMissingFuncs.h:		provides common functions, missing on certain
+				platforms.
+
+RSTProvMissingValues.h:		provides commonly defined values, missing
+				(incorrectly defined) on certain platforms.
+
+RSTRpnintBag.h:			provides arbitrary sized ordered bags of
+				Rpnint numbers, (Rpnint is a standard type
+				from RSTStdTypes.h).
+				Error support: parameter Done, messages.
+
+RSTRpnintSet.h:			provides arbitrary sized ordered sets of
+				Rpnint numbers, (Rpnint is a standard type
+				from RSTStdTypes.h).
+				Error support: parameter Done, messages.
+
+RSTStdTypes.h:			provides standard types and a wrapper for the
+				format string of printf, which helps to print
+				the numerical standard types defined here.
+				Error support: -
+
+drand48.h:			Provides a re-implementation of Unix' random
+                                generator drand48.
+
+--------------------------------
+Header Viewer:
+--------------
+
+type "getheads <RETURN>"
+
+--------------------------------
+Libraries / Compilation:
+------------------------
+
+Libraries are provided for 32 and 64 bit pointers respectively and suffixed
+with ".32.a" and ".64.a".

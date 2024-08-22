@@ -1,0 +1,100 @@
+# MakeHBP: Makefile for the HBP distributions (adapted based on MakeReal)
+# DO NOT call directly, see createall
+######################################################################
+# NOTE that this Makefile depends on the fact that there is exactly  #
+# one distribution per dimensionality. Hence parameter $(dim)        #
+# controls which distribution is made!                               #
+######################################################################
+#
+# NOTE that these (and possible flags (e.g. -n) are retained in $(MAKEFLAGS).
+# The parameters of MAKEFLAGS are AUTOMATICALLY exported to any command or
+# shell invoked in a makefile. Thereby assigned parameters may be re-assigned
+# in the command-line of the invokation and in the makefile itself:
+# --> MAKEFLAGS re-assigned by makefile re-assigned by command-line!
+
+## directory of source distributions:
+srcDir = RealDistOrig
+
+all: $(INST)/$(distro)$(dim) \
+     $(QP)/$(distro)$(dim).$(r1d)th $(QP)/$(distro)$(dim).$(r2d)th $(QP)/$(distro)$(dim).$(r3d)th \
+     $(QR0)/$(distro)$(dim) \
+     $(QR1)/$(distro)$(dim) \
+     $(QR2)/$(distro)$(dim) \
+     $(QR3)/$(distro)$(dim)
+
+#####
+$(INST)/$(distro)$(dim): $(INST)/$(INST) \
+                   $(srcDir)/$(distro)$(dim)
+##	greater number of entries:
+#	$(convp)$(gdA) $(dim) $(srcDir)/$(distro)$(dim) $(fac) $(scl) -$(gdE) -$(gdP)
+#	mv $(srcDir)/$(distro)$(dim).$(gdA)$(gdE)$(gdP) $(INST)/$(distro)$(dim)
+##	original distributions:
+	mv $(srcDir)/$(distro)$(dim) $(INST)/$(distro)$(dim)
+$(QP)/$(distro)$(dim): $(QP)/$(QP) \
+                 $(INST)/$(distro)$(dim)
+	marea $(dim) $(INST)/$(distro)$(dim) 0 $(QP)/$(distro)$(dim).a0
+	dither $(dim) $(QP)/$(distro)$(dim).a0 1 $(QP)/$(distro)$(dim)
+	rm $(QP)/$(distro)$(dim).a0
+$(QP)/$(distro)$(dim).$(r1d)th: $(QP)/$(distro)$(dim)
+	cpeach $(r1d) $(rsize) $(QP)/$(distro)$(dim) $(QP)/$(distro)$(dim).$(r1d)th
+$(QP)/$(distro)$(dim).$(r2d)th: $(QP)/$(distro)$(dim)
+	cpeach $(r2d) $(rsize) $(QP)/$(distro)$(dim) $(QP)/$(distro)$(dim).$(r2d)th
+$(QP)/$(distro)$(dim).$(r3d)th: $(QP)/$(distro)$(dim)
+	cpeach $(r3d) $(rsize) $(QP)/$(distro)$(dim) $(QP)/$(distro)$(dim).$(r3d)th
+$(QR0)/$(distro)$(dim): $(QR0)/$(QR0) \
+                  $(INST)/$(distro)$(dim)
+	cpeach $(r0d) $(rsize) $(INST)/$(distro)$(dim) $(QR0)/$(distro)$(dim).raw
+	marea $(dim) $(QR0)/$(distro)$(dim).raw 0 $(QR0)/$(distro)$(dim)
+	rm $(QR0)/$(distro)$(dim).raw
+$(QR1)/$(distro)$(dim): $(QR1)/$(QR1) \
+                  $(QP)/$(distro)$(dim).$(r1d)th \
+                  $(INST)/$(distro)$(dim) \
+                  MDsuc$(dim)
+	MDsuc$(dim) $(QP)/$(distro)$(dim).$(r1d)th $(r1) $(INST)/$(distro)$(dim) $(QR1)/$(distro)$(dim)
+$(QR2)/$(distro)$(dim): $(QR2)/$(QR2) \
+                  $(QP)/$(distro)$(dim).$(r2d)th \
+                  $(INST)/$(distro)$(dim) \
+                  MDsuc$(dim)
+	MDsuc$(dim) $(QP)/$(distro)$(dim).$(r2d)th $(r2) $(INST)/$(distro)$(dim) $(QR2)/$(distro)$(dim)
+$(QR3)/$(distro)$(dim): $(QR3)/$(QR3) \
+                  $(QP)/$(distro)$(dim).$(r3d)th \
+                  $(INST)/$(distro)$(dim) \
+                  MDsuc$(dim)
+	MDsuc$(dim) $(QP)/$(distro)$(dim).$(r3d)th $(r3) $(INST)/$(distro)$(dim) $(QR3)/$(distro)$(dim)
+#######
+MDsuc$(dim):
+	$(MAKE) MDsuc$(dim)
+	grep Param\. MDsuc.c
+#######
+$(INST)/$(INST):
+	mkdir $(INST)
+	touch $(INST)/$(INST)
+$(QP)/$(QP):
+	mkdir $(QP)
+	touch $(QP)/$(QP)
+$(QR0)/$(QR0):
+	mkdir $(QR0)
+	touch $(QR0)/$(QR0)
+$(QR1)/$(QR1):
+	mkdir $(QR1)
+	touch $(QR1)/$(QR1)
+$(QR2)/$(QR2):
+	mkdir $(QR2)
+	touch $(QR2)/$(QR2)
+$(QR3)/$(QR3):
+	mkdir $(QR3)
+	touch $(QR3)/$(QR3)
+	mkdir $(QP)
+	touch $(QP)/$(QP)
+$(QR0)/$(QR0):
+	mkdir $(QR0)
+	touch $(QR0)/$(QR0)
+$(QR1)/$(QR1):
+	mkdir $(QR1)
+	touch $(QR1)/$(QR1)
+$(QR2)/$(QR2):
+	mkdir $(QR2)
+	touch $(QR2)/$(QR2)
+$(QR3)/$(QR3):
+	mkdir $(QR3)
+	touch $(QR3)/$(QR3)

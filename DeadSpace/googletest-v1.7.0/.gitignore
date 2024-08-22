@@ -1,0 +1,5 @@
+# python
+*.pyc
+/CMakeFiles/
+/cmake_install.cmake
+/Makefile

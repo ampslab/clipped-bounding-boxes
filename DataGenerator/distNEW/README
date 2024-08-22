@@ -1,0 +1,320 @@
+README in distNEW
+=================
+
+Compatibility:
+==============
+The programs should be compilable under all modern C based 32 and 64 bit
+operating systems on little as well as on big endian architectures (at least
+with minimal adaptions).
+Tested on the operating systems:
+Solaris, openindiana, ubuntu, FreeBSD, Windows 7 with minGW installed.
+System dependent preprocessor directives are in RSTStdTypes.h and its includes.
+Tested with the compilers:
+gcc, SolarisStudio-cc.
+Due to possibly huge files to be created, 64 bit compilation is the default.
+
+Further platforms:
+------------------
+Labels in preprocessor directives (with some exceptions, e.g. "__linux__")
+are dedicated to precisely the platforms mentioned above, but may apply to
+other platforms too. So, what applies to e.g. FreeBSD may apply to other BSDs
+too. Thus, after ensuring applicability, platform conditions may be ORed with
+labels for other platforms.
+Note: Do not search for labels, corresponding to the Sun/Oracle platform (and
+its descendants). They do not exist, because in the given context this platform
+provides the most comprehensive support.
+
+Prerequisites (date: 03/13):
+============================
+- A minimum gnu/Unix environment is required.
+  Worth mentioning: gmake, gcc, readlink(!), ln (symbolic links(!)).
+  Under Windows there are two options:
+    - "cygwin" can be installed, runs fine, but full installation
+      is space costy and may be slow.
+    - minGW and minGW64 can be installed (both recommended).
+- 64 bit environment is recommended (long files), but command "readlink" is
+  missing in mingw-w64-v2.0.7 (may already be amended).
+- Xm (Motif) library and header files are needed (only for rectangle
+  visualizer "vidi").
+  Motif is standardly present under Solaris 11 and openindiana.
+  No problem to install under ubuntu: about 2 packages, important: the dev
+  part (dev version?) also containing the header files.
+  No problem to install under FreeBSD, but problems running Gnome Desktop (X11)
+  on FreeBSD 9.1 (at least) in VirtualBox 4.6 - 4.10 (inoperative mouse
+  buttons) (may already be amended).
+- gcc-4.7.3 or later is recommended. The author used 4.7.2, but a bug in (all?)
+  gcc versions 4.4 .. 4.7.2 causes "mbbf" not to be compiled.
+  Solved in 4.7.3. Known to work in 3.4.3, 4.3.6.
+  See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=56270
+- gmake (gnu make) is necessary (makefiles won't work with standard make).
+- The tools directory has to be in PATH.
+- "." has to be in PATH, preferably in the first position.
+
+NOTE concerning make:
+=====================
+On some systems (e.g. Linux and minGW) "make" actually IS "gmake". On other
+systems "make" MAY BE "gmake", depending on the PATH variable. If not, "gmake"
+has to be called instead of "make". When in the this README "make" is referred
+to, always "gmake" is meant.
+
+Windows users and editing:
+==========================
+Windows is the sole (widespread) OS, under which programs do not recognize
+normal LINEFEEDs. This is indeed a relict from teletype times, and was already
+at that time a half-baked solution (the LINEFEED was taken its (not given a)
+CARRIAGE_RETURN functionality). The intrinsically needless "b", transferring
+binary data, is one of the annoying follow-ups.
+This leads to the following NOTE:
+  You should have notepad++ (or any other editor recognizing LINEFEED as line
+  break) installed if you want to edit scripts, makefiles, etc. from this
+  bundle.
+
+Adaptions:
+==========
+- 32 bit compilation:
+  Open createall in an editor. Search for "MAKEFLAGS".
+  MAKEFLAGS is a variable, on its part containing variables, passed to the
+  makefiles. Actually assigned to it is a long quoted string, where linefeeds
+  are replaced by " ".
+  Extend the definition of MAKEFLAGS by "m=32".
+
+Remarks concerning extended file sizes:
+=======================================
+Artificial files with about 100 times more data are created by CD??? programs
+compiled from the CD???.c.NEW sources.
+
+ped: number of objects: about times 100
+     AvgPerEdge 250 --> 500	(characteristics change!!)
+
+pha: number of objects: about times 100
+     AvgPerClust 250 --> 500	(characteristics change!!)
+
+The characteristics change in view of the original distributions,
+but are an adaption to possibly greater nodes (8192 and more). This is possible
+now due to the greater number of objects (and could even be tuned further).
+For the original distributions, capacity and number of the clusters had to be
+balanced, and the node capacity had to be kept in mind (cluster capacity
+should be much greater).
+
+Old Bugs and compatibility:
+===========================
+When the original distribution set was created, the random seed was
+inadvertantly not set in MDsuc.c and MDmpr.c here, and in dither.c in the
+tools directory.
+Thus, in the original setting, drand48's constant internal random seed was used
+in these programs. This does not deteriorate the beavior of drand48, which is
+also the reason that it was detected too late.
+In MDsuc this concerns the variation of the number of queries of type QueriesR2
+and QueriesR3, created "around" each inserted data rectangle.
+In MDmpr this concerns the construction of the special input order, the points
+are inserted with.
+In dither it concerns the position dithering of the point queries for the real
+data files.
+These issues do not harm discretely due to drand48's constant default seed,
+and do not harm in combination, because there is no correlation between any of
+the applications.
+Random seed setting in all programs is coded now, but out-commented in these
+cases, to make creating the original data set possible. Thus, in these programs
+the constant RANDSEED is not active. If wanted, this can be changed by
+uncommenting the call of srand48() in these programs.
+
+Installation (distribution set with extended file sizes):
+=========================================================
+  Reserve at least 700 GB disk space.
+  Ensure the Prerequisites are fulfilled.
+  Goto the tools directory. Call "make".
+  (The tools should be callable from everywhere now! (PATH!))
+  Go back to the distNEW directory.
+  Activate the MODIFIED artificial data generators as follows:
+  for i in abs bit dia par ped pha uni; do
+    cp CD${i}.c.NEW CD${i}.c
+  done
+  Copy the original real data files (binary files for insertion) into
+  distNEW/RealDistOrig.
+  Please use the original names, which are
+  rea02, rea03, rea05, rea09, rea16, rea22, rea26.
+  Please, really copy, do not symbolicly link (sorry).
+  Leaving out real data files is possible.
+  Call "createall R 2 3 9".
+  This will create a test environment, similar to that of the RR*-tree paper,
+  but with much more data to be inserted.
+  Remark:
+  The goal was to create about 100'000'000 points/rectangles per distribution.
+  In practice however:
+  - Some algorithms for the artificial distributions only allow creation in
+    discrete steps (e.g. doubling).
+  - The real data files, when (partially) consisting of rectangles, should not
+    be increased to much, because of growing overlap.
+  In the concerned cases, a compromise was chosen.
+  
+  The installation process will create the following directories:
+  distNEW/Insertion		insertion data
+  distNEW/QueriesP		intermediate, i.e. unused for tests
+  distNEW/QueriesR0		"find 1 object"-queries
+  distNEW/QueriesR2		"find 100 objects"-queries
+  distNEW/QueriesR3		"find 1000 objects"-queries
+  
+  At the end of the creation process "create.script" should be searched for
+  error messages (see also prompt of createall).
+  If all went fine, you may remove the content of distNEW/RealDistOrig.
+  Note that createall, called without any options, gives usage hints.
+  This feature accordingly applies to all programs of the complete bundle.
+
+Installation (original distribution set):
+=========================================
+  IMPORTANT NOTE:
+  ---------------
+  This implementation does not exactly reproduce the original distribution and
+  query set as published in 2009, though all utilized sources still strictly
+  meet the original definition.
+  A reproduced data set (see "Installation" below) will in fact be equivalent,
+  but will not be an identical copy of the original.
+  Details:
+  
+  Regarding the Insertion data, only a single file (abs09) is concerned.
+  The difference is very small. About 3% of the coordinates (double values)
+  differ in the least significant (two) digit(s) of the %.15e representation
+  of printf.
+  The reason for this issue could not be determined finally (sorry). The
+  corresponding query files differ analogously.
+  
+  Regarding the Query files, apart from abs09's queries, only queries of the
+  real data distributions are concerned. This is due to the circumstances
+  explicated in the following section.
+  
+  The query rectangles are created by constructing the rectangular
+  n-Nearest-Neighbors environment of the centers of the data rectangles
+  (see publication).
+  The artificial data set was created exploiting drand48's full precision
+  (48 bits). This leads to unique n nearest neighbors.
+  However, the precision of the real data is much smaller. Additionally the
+  correlation of the positions of the rectangles/points is stronger. 
+  This may lead to sets of multiple different rectangles with the same
+  distance to the query point. If this happens at the distance of the farthest
+  of the n nearest neighbors, multiple equivalent query rectangles arise.
+  Which one of these is chosen is undefined and depends on the intrinsically
+  undefined ordering of equidistant rectangles in the priority queue of the
+  nearest neightbors algorithm. Essentially this ordering depends on the
+  actual organization of the underlying storage structure.
+  While this has been an R*-tree at that time, it is an RR*-tree now.
+  Additionally, the choice of the page sizes for the different
+  dimensionalities has been changed for large files, because these are kept
+  on secondary memory now (using the reference LRU buffer included in the
+  RSTree bundle's utilities).
+  
+  Table of differing data:
+  Type		artificial	real data
+  ----------------------------------------------------------------------------
+  Insertion:	abs09		-
+  QueriesP:	-		-
+  QueriesR0:	abs09		-
+  QueriesR2:	abs09		rea02, rea03, rea05, rea16, rea22, rea26
+  QueriesR3:	abs09		rea02, rea03, rea05, rea16, rea22, rea26
+  
+  Installation:
+  -------------
+  Reserve at least 7 GB disk space.
+  Ensure the Prerequisites are fulfilled.
+  Goto the tools directory. Call "make".
+  (The tools should be callable from everywhere now! (PATH!))
+  Go back to the distNEW directory.
+  Activate the ORIGINAL artificial data generators as follows:
+  for i in abs bit dia par ped pha uni; do
+    cp CD${i}.c.ORIG CD${i}.c
+  done
+  Copy the original real data files (binary files for insertion) into
+  distNEW/RealDistOrig.
+  Please use the original names, which are
+  rea02, rea03, rea05, rea09, rea16, rea22, rea26.
+  Please, really copy, do not symbolicly link (sorry).
+  Leaving out real data files is possible.
+    New real data files need not to be created. Instead, the original files
+    should be used. This requires the following modification in file MakeReal:
+    For the target "$(INST)/rea$(dim)":
+    Comment out the currently active commands, i.e. the line starting with
+    $(convp) and the line with the corresponding mv command.
+    Uncomment the line with the bare mv command.
+  Call "createall R 2 3 9".
+  This will create the RR*-tree paper test environment.
+  
+  The installation process will create the following directories:
+  distNEW/Insertion		insertion data
+  distNEW/QueriesP		intermediate, i.e. unused for tests
+  distNEW/QueriesR0		"find 1 object"-queries
+  distNEW/QueriesR2		"find 100 objects"-queries
+  distNEW/QueriesR3		"find 1000 objects"-queries
+  
+  At the end of the creation process "create.script" should be searched for
+  error messages (see also prompt of createall).
+  Note that createall, called without any options, gives usage hints.
+  This feature accordingly applies to all programs of the complete bundle.
+
+Customization:
+==============
+Artificial data:
+----------------
+  Other number of objects (or even other fine chracteristics):
+  The CD???.c sources generate the artificial data. Each has a section
+  with some "<--- set Param." lables and explanations above.
+  
+  Other number of queries (depending on query sizes):
+  Variables r0d r2d r3d in createall (3 sizes).
+  But only these 3 variables are recognized in the makefiles.
+  If yout want more sizes, you have to add things there.
+  The MD???.c sources are responsible for generating the queries.
+
+Real data:
+----------
+  Other number of objects:
+  The factor for the program gdNN can be set in the "REAL DISTRIBUTIONS" part
+  of createall (scale may have to be tuned too for rectangles).
+  Other kind of replication:
+  The options for the gdNN-program can be set in the "REAL DISTRIBUTIONS"
+  part of createall.
+  Finally, the name of the replication-program ("gdNN" by default, assembled
+  from $ConvP$gdA and passed to MakeReal in the MAKEFLAGS convp and gdA) can be
+  set in the "REAL DISTRIBUTIONS" part of createall.
+  Other number of queries (depending on query sizes): see Artificial data.
+
+Notes:
+======
+Rebuilt:
+--------
+Due to working with makefiles, things are only re-made if they are out of date
+or not present. See also "Cleaning" below.
+
+Making of particular programs:
+------------------------------
+Some programs are separately made for specific dimensions. Concerning these
+programs, "Makefile" depends on a variable "dim", whose value has to be
+provided on the command line (dim=<dimension>). Necessaryly, the dimensionality
+is also suffixed to the names of the concerned programs and thus to the targets
+of "Makefile". Failing to call make without the <dimension> suffix for such a
+program leads to very irritating error messages.
+Example for a correct call:
+$ make dim=15 MDapr15
+
+Cleaning:
+---------
+"Makefile" in distNEW has targets "clean", "rmprgs" and "recomp":
+The makefiles in the sub-directories have targets "clean" and "recomp".
+- clean: common usage
+- rmprgs: remove programs here, clean here and in subdirectories
+- recomp: remove all programs and libraries, clean all
+Since "Makefile" depends on a variable "dim" (see "Making of particular
+programs"), cleaning has to be done for each dimension separately.
+There are shell scripts, named "rmProgs" and "prepRecomp" in distNEW, on their
+part calling make for multiple dimensions.
+Distributions have to be removed by hand!
+
+NOTE that only "Makefile" is designed for direct use. The other makefiles,
+e.g. MakeArtiS, are designed to be exclusively called through createall.
+NOTE that the tools directory is stand alone and not handled here.
+
+Other:
+------
+There are useful programs in distNEW, which are not mentioned here. For these
+applies: A source foo.c can be compiled with "make foo", and will give short
+instructions, called without options. But the most important tools are in the
+tools directory.
+
